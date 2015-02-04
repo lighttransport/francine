@@ -1,0 +1,25 @@
+{
+  "maxerr":    10,
+
+  "camelcase": true,
+  "curly":     true,
+  "eqeqeq":    true,
+  "forin":     true,
+  "freeze":    true,
+  "immed":     false,
+  "indent":    4,
+  "newcap":    true,
+  "noarg":     true,
+  "noempty":   true,
+  "nonbsp":    true,
+  "plusplus":  false,
+  "quotmark":  "single",
+  "undef":     true,
+  "unused":    true,
+  "strict":    true,
+  "lastsemic": true,
+
+  "boss":      true,
+
+  "node":      true
+}
