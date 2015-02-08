@@ -21,6 +21,7 @@
     "multitransport-jsonrpc": "0.8.0",
     "optimist": "0.6.1",
     "process": "0.10.0",
+    "q": "^1.1.2",
     "request": "2.53.0"
   }
 }
