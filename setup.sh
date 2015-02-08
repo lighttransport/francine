@@ -2,6 +2,7 @@
 apt-get install -y nodejs npm supervisor
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm install
+gcc ao.c lodepng.c -lm -o ao 
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
 [program:francine]
