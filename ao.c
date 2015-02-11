@@ -8,7 +8,7 @@
 
 #define WIDTH        256
 #define HEIGHT       256
-#define NSUBSAMPLES  2
+#define NSUBSAMPLES  1
 #define NAO_SAMPLES  8
 
 typedef struct _vec
@@ -340,11 +340,26 @@ savepng(const char *fname, int w, int h, unsigned char *img)
 int
 main(int argc, char **argv)
 {
+    int i, seed = 0;
     unsigned char *img = (unsigned char *)malloc(WIDTH * HEIGHT * 3);
+
+    if (argc > 2) {
+	    srand48(seed = atoi(argv[2]));
+	    fprintf(stderr, "seed: %d\n", seed);
+    }
 
     init_scene();
 
     render(img, WIDTH, HEIGHT, NSUBSAMPLES);
+
+
+    /*
+    for (int i = 0; i < WIDTH * HEIGHT * 3; ++i) {
+        if (i % 3 != seed % 3) {
+            img[i] = 0;
+        }
+    }
+    */
 
     // saveppm("ao.ppm", WIDTH, HEIGHT, img); 
 
