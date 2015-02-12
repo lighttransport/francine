@@ -6,8 +6,8 @@
 
 #include "lodepng.h"
 
-#define WIDTH        256
-#define HEIGHT       256
+#define WIDTH        512
+#define HEIGHT       512
 #define NSUBSAMPLES  1
 #define NAO_SAMPLES  8
 
@@ -345,7 +345,7 @@ main(int argc, char **argv)
 
     if (argc > 2) {
 	    srand48(seed = atoi(argv[2]));
-	    fprintf(stderr, "seed: %d\n", seed);
+	    // fprintf(stderr, "seed: %d\n", seed);
     }
 
     init_scene();
