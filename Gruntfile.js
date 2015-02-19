@@ -14,13 +14,27 @@ module.exports = function(grunt) {
             },
             lib: {
                 options: {
-                    jshintrc: 'lib/.jshintrc'
+                    jshintrc: '.jshintrc'
                 },
                 src: ['lib/**/*.js']
             },
             test: {
                 src: ['test/**/*.js']
             },
+        },
+        jscs: {
+            lib: {
+                files: {
+                    src: ['lib/**/*.js'],
+                    config: '.jscsrc'
+                }
+            },
+            test: {
+                files: {
+                    src: ['test/**/*.js'],
+                    config: '.jscsrc'
+                }
+            }
         },
         watch: {
             gruntfile: {
@@ -29,11 +43,11 @@ module.exports = function(grunt) {
             },
             lib: {
                 files: '<%= jshint.lib.src %>',
-                tasks: ['jshint:lib', 'nodeunit']
+                tasks: ['jshint:lib', 'jscs:lib', 'nodeunit']
             },
             test: {
                 files: '<%= jshint.test.src %>',
-                tasks: ['jshint:test', 'nodeunit']
+                tasks: ['jshint:test', 'jscs:lib', 'nodeunit']
             },
         }
     });
@@ -41,6 +55,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-nodeunit');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-jscs');
 
-    grunt.registerTask('default', ['jshint', 'nodeunit']);
+    grunt.registerTask('default', ['jshint', 'jscs', 'nodeunit']);
 };

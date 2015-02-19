@@ -29,9 +29,9 @@ To stop the cluster, run
 
 ## API design
 
-There are sessions. Sessions are associated to each user. Sessions can have associated resources. The resources once associated to the session are immutable. The resources can be retrieved from cloud storages e.g. Google Drive and Dropbox. They are spread to workers efficiently.
+There are sessions. The sessions are associated to each user. The sessions can have associated resources. The resources once associated to the session are immutable. The resources can be retrieved from cloud storages e.g. Google Drive and Dropbox. They are spread to workers efficiently.
 
-Sessions can have their executions. Each execution can patch the sessions. The detail of the patching differs between producers.
+The sessions can have their executions. Each execution can patch the sessions. The detail of the patching differs between producers.
 
 The executions are transparently divided into tasks. There are two types of tasks: productions and reductions. A producer is a renderer. A reducer is a synthesizer that makes an image from many images.
 
@@ -45,7 +45,7 @@ Master continually pings the workers through JSON RPC port. The workers pong the
 
 The master logs every request and continually makes its state snapshot, so it can tolerate unexpected restarts (not implemented).
 
-Workers have no such tolerances and the failures are managed through rescheduling by the master.
+The workers have no such tolerances and the failures are managed through rescheduling by the master.
 
 When a session is registered, the registration is validated (not implemented) and authenticated by the master. If successful, it will be saved to master but nothing will happen immediately.
 
@@ -61,6 +61,7 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
+* Force Airbnb coding style
 * Write auto-scaling policy
 * Write scheduling policy
 * Write error handling and fault tolerant scheduling

@@ -4,7 +4,7 @@
   "description": "Francine2: A Job Manager for Distributed Rendering",
   "main": "lib/main",
   "scripts": {
-    "test": "grunt nodeunit"
+    "test": "grunt"
   },
   "author": "Light Transport Entertainment, Inc.",
   "license": "Proprietary",
@@ -12,10 +12,11 @@
     "grunt": "0.4.5",
     "grunt-contrib-jshint": "0.11.0",
     "grunt-contrib-nodeunit": "0.4.1",
-    "grunt-contrib-watch": "0.6.1"
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-jscs": "1.5.0"
   },
   "dependencies": {
-    "body-parser": "^1.12.0",
+    "body-parser": "1.12.0",
     "express": "4.11.2",
     "mkdirp": "0.5.0",
     "multitransport-jsonrpc": "0.8.0",
