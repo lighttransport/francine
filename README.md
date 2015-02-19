@@ -27,6 +27,38 @@ To stop the cluster, run
 
     node lib/main --mode=deploy --instanceType=gce --teardown
 
+## API design
+
+There are sessions. Sessions are associated to each user. Sessions can have associated resources. The resources once associated to the session are immutable. The resources can be retrieved from cloud storages e.g. Google Drive and Dropbox. They are spread to workers efficiently.
+
+Sessions can have their executions. Each execution can patch the sessions. The detail of the patching differs between producers.
+
+The executions are transparently divided into tasks. There are two types of tasks: productions and reductions. A producer is a renderer. A reducer is a synthesizer that makes an image from many images.
+
+The users of Francine API can directly create sessions and executions but cannot control tasks.
+
+## Architecture design
+
+There are two type of instances: master and workers. All the tasks are scheduled by the master. The master is a [SPOF](http://en.wikipedia.org/wiki/Single_point_of_failure).
+
+Master continually pings the workers through JSON RPC port. The workers pong the master while piggy-backing their logs and session cache information.
+
+The master logs every request and continually makes its state snapshot, so it can tolerate unexpected restarts (not implemented).
+
+Workers have no such tolerances and the failures are managed through rescheduling by the master.
+
+When a session is registered, the registration is validated (not implemented) and authenticated by the master. If successful, it will be saved to master but nothing will happen immediately.
+
+If an execution is registered, the master break down it to multiple producing tasks and reducing tasks. The master assigns tasks to the workers while minimizing resource transferring cost.
+
+The workers can respond to resource and result transferring request through HTTP.
+
+Every time each worker finishes its long task, finish RPC call will be sent to the master.
+
+## Coding style guide
+
+The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript).
+
 ## TODOs
 
 * Write auto-scaling policy
@@ -35,12 +67,14 @@ To stop the cluster, run
 * Support session associated external file API
 * Support dedicated resource file storage
 * Support REST API authentication
-* Support logging
+* Support advanced logging
 * Test in 10k nodes environment and improve scalability
 * Support LTE renderer as a producer
 * Support EXR file format as a reducer
 * Improve REST API
 * Support other API interfaces (e.g. WebSocket)
+* Support Amazon EC2 as an instance type
+* Support request snapshotting
 
 ## References
 
