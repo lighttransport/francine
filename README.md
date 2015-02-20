@@ -5,6 +5,8 @@ Francine is a highly scalable task manager and scheduler. It is specially design
 Older version that was written in Go and using Redis is [here](https://github.com/lighttransport/francine-old).
 
 [![Build Status](https://travis-ci.org/lighttransport/francine.svg?branch=master)](https://travis-ci.org/lighttransport/francine)
+[![Dependency Status](https://david-dm.org/lighttransport/francine.svg)](https://david-dm.org/lighttransport/francine)
+[![Code Climate](https://codeclimate.com/github/lighttransport/francine/badges/gpa.svg)](https://codeclimate.com/github/lighttransport/francine)
 
 ## Usage
 
@@ -61,7 +63,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
-* Force Airbnb coding style
 * Write auto-scaling policy
 * Write scheduling policy
 * Write error handling and fault tolerant scheduling
