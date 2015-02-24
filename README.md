@@ -1,6 +1,6 @@
 # Francine: Highly scalable renderer backend
 
-Francine is a highly scalable task manager and scheduler. It is specially designed for ray tracing rendering tasks.
+Francine is a highly scalable job manager and scheduler. It is specially designed for distributed ray tracing tasks.
 
 Older version that was written in Go and using Redis is [here](https://github.com/lighttransport/francine-old).
 
