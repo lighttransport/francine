@@ -1,4 +1,5 @@
 #!/bin/sh
+apt-get update -y
 apt-get install -y nodejs npm supervisor
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm install
