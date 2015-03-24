@@ -5,7 +5,7 @@ update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm install
 gcc ao.c lodepng.c -lm -o ao 
 
-sudo rsync -rtv `pwd` /root
+sudo rsync -rtv . /root
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
 [program:francine]
