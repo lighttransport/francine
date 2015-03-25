@@ -94,7 +94,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * Write auto-scaling policy
 * Write scheduling policy
 * Write error handling and fault tolerant scheduling
-* Support session associated external file API
 * Support dedicated resource file storage
 * Support REST API authentication
 * Support advanced logging
