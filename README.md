@@ -36,11 +36,15 @@ Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.
 
     npm install
     node lib/main --mode=deploy --instanceType=gce --startMaster
-    curl http://your.gce.insatnce:3000/
+    curl http://your.master.gce.instance:3000/
 
 To stop the cluster, run
 
     node lib/main --mode=deploy --instanceType=gce --teardown
+
+You can see the web dashboard on
+
+    http://your.master.gce.instance:4000/
 
 ## API design
 
@@ -69,6 +73,17 @@ If an execution is registered, the master break down it to multiple producing ta
 The workers can respond to resource and result transferring request through HTTP.
 
 Every time each worker finishes its long task, finish RPC call will be sent to the master.
+
+## REST API
+
+* Session
+  * POST /sessions
+  * GET /sessions/:sessionName
+  * DELETE /sessions/:sessionName
+* Execution
+  * POST /sessions/:sessionName/executions
+  * GET /sessions/:sessionName/executions/:executionName
+  * GET /sessions/:sessionName/executions/:executionName/result
 
 ## Coding style guide
 
