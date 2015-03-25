@@ -10,6 +10,19 @@ Older version that was written in Go and using Redis is [here](https://github.co
 
 ## Usage
 
+Write a configure file at ~/.francinerc:
+
+    {
+        "dropbox": {
+            "apiKey": "(Dropbox API key)",
+            "apiSecret": "(Dropbox API secret)"
+        },
+        "ltePath": "/path/to/lte/lte_Linux_x64",
+        "staticInstanceSize": 256
+    }
+
+(This file will be forwarded to remote cluster)
+
 ### Test locally
 
     gcc -o ao ao.c lodepng.c
