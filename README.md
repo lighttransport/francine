@@ -13,6 +13,12 @@ Older version that was written in Go and using Redis is [here](https://github.co
 Write a configuration file at ~/.francinerc:
 
     {
+	"gce": {
+		"project": "(Google Compute Engine project name)",
+		"zone": "us-central1-a",
+		"masterMachineType": "n1-highcpu-2",
+		"workerMachineType": "n1-highcpu-4"
+	},
         "dropbox": {
             "apiKey": "(Dropbox API key)",
             "apiSecret": "(Dropbox API secret)"
