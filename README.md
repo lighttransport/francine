@@ -10,7 +10,7 @@ Older version that was written in Go and using Redis is [here](https://github.co
 
 ## Usage
 
-Write a configure file at ~/.francinerc:
+Write a configuration file at ~/.francinerc:
 
     {
         "dropbox": {
@@ -91,6 +91,9 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
+* Support LTE renderer as a producer
+* Write benchmark
+* Support Google Drive as file storage
 * Write auto-scaling policy
 * Write scheduling policy
 * Write error handling and fault tolerant scheduling
@@ -98,7 +101,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * Support REST API authentication
 * Support advanced logging
 * Test in 10k nodes environment and improve scalability
-* Support LTE renderer as a producer
 * Support EXR file format as a reducer
 * Improve REST API
 * Support other API interfaces (e.g. WebSocket)
