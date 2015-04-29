@@ -12,6 +12,10 @@ if [ -d 'mallie' ]; then
 	cd ..
 fi
 
+cd compositor && \
+. ./compile.sh && \
+cd ..
+
 sudo rsync -rtv . /root
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
