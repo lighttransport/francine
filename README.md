@@ -24,7 +24,7 @@ Write a configuration file at ~/.francinerc:
             "apiSecret": "(Dropbox API secret)"
         },
         "ltePath": "/path/to/lte/lte_Linux_x64",
-	"malliePath": "/path/to/mallie",
+        "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
     }
 
