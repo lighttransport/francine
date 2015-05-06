@@ -10,4 +10,4 @@ cd ..
 
 npm install
 
-node lib/main --mode=master --test
+node lib/main --mode=master
