@@ -24,10 +24,13 @@ Write a configuration file at ~/.francinerc:
             "apiSecret": "(Dropbox API secret)"
         },
         "ltePath": "/path/to/lte/lte_Linux_x64",
+	"malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
     }
 
-(This file will be forwarded to remote cluster)
+The files under ltePath and malliePath are automatically forwarded to the cluster.
+
+Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
 ### Test locally
 
