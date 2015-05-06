@@ -1,7 +1,7 @@
 {
-  "name": "francine2",
+  "name": "francine",
   "version": "0.1.0",
-  "description": "Francine2: A Job Manager for Distributed Rendering",
+  "description": "Francine: A Job Manager for Distributed Rendering",
   "main": "lib/main",
   "scripts": {
     "test": "`npm bin`/grunt"
@@ -23,7 +23,6 @@
     "mkdirp": "0.5.0",
     "multitransport-jsonrpc": "0.8.0",
     "optimist": "0.6.1",
-    "pngjs": "0.4.0",
     "process": "0.10.0",
     "q": "1.1.2",
     "request": "2.53.0",

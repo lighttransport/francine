@@ -97,13 +97,12 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
-* Support LTE renderer as a producer
-* Support JPG as a reducer
 * Make external OAuth storages compatible with francine REST APIs
+* Write benchmark
+* Support advanced logging
+* Support LTE process caching
 * Support Google Drive as file storage
 * Write demo
-* Support advanced logging
-* Write benchmark
 
 * Write auto-scaling policy
 * Write scheduling policy
