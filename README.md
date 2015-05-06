@@ -31,22 +31,19 @@ Write a configuration file at ~/.francinerc:
 
 ### Test locally
 
-    gcc -o ao ao.c lodepng.c
-    npm install
-    node lib/main --mode=master --test
+    ./run_locally.sh
     curl http://localhost:3000/
 
 ### Deploy to Google Compute Engine
 
-Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.com/sdk/).
+Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.com/sdk/) and written ~/.francinerc.
 
-    npm install
-    node lib/main --mode=deploy --instanceType=gce --startMaster
+    ./deploy.sh
     curl http://your.master.gce.instance:3000/
 
 To stop the cluster, run
 
-    node lib/main --mode=deploy --instanceType=gce --teardown
+    ./teardown.sh
 
 You can see the web dashboard on
 
