@@ -85,6 +85,12 @@ Input:
         ]
     }
 
+Output:
+
+If ?block=true is specified, it will return the resulting image file in binary.
+Otherwise, it will return the same content as GET /sessions/:sessionName.
+   
+
 #### GET /sessions/:sessionName
 
 Get the session information.
@@ -115,9 +121,9 @@ Get the execution information.
 
 #### GET /sessions/:sessionName/executions/:executionName/result
 
-Get the result image of the execution.
+Get the resulting image of the execution.
 
-Output: image file
+Output: resulting image file in binary
 
 ## Architecture design
 
