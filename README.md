@@ -56,11 +56,66 @@ You can see the web dashboard on
 
 There are sessions. The sessions are associated to each user. The sessions can have associated resources. The resources once associated to the session are immutable. The resources can be retrieved from cloud storages e.g. Google Drive and Dropbox. They are spread to workers efficiently.
 
-The sessions can have their executions. Each execution can patch the sessions. The detail of the patching differs between producers.
+The sessions can have their executions. Each execution can update the session. The detail of the updating differs among producers.
 
 The executions are transparently divided into tasks. There are two types of tasks: productions and reductions. A producer is a renderer. A reducer is a synthesizer that makes an image from many images.
 
 The users of Francine API can directly create sessions and executions but cannot control tasks.
+
+## REST API
+
+### Session
+
+#### POST /sessions
+
+Create a session.
+
+Input:
+    {
+        "producer": "ao" | "mallie" | "lte",
+        "format": "png" | "jpg" | "exr",
+        "resources": [
+            {
+                "type": "dropbox",
+                "path": "/path/to/the/file/in/dropbox",
+                "dst": "file_name_to_be_placed"
+            },
+            ...
+        ]
+    }
+
+#### GET /sessions/:sessionName
+
+Get the session information.
+
+#### DELETE /sessions/:sessionName
+
+Delete the session.
+
+### Execution
+
+#### POST /sessions/:sessionName/executions [?block=true]
+
+Create an execution.
+
+Input:
+    {
+        "sessionName": "givenSessionName",
+        "parallel": 8 // Number of parallelized tasks
+        "update": {} // Update data (depend on producer types)
+    }
+
+The content of update will be applied to all the fllowing executions.
+
+#### GET /sessions/:sessionName/executions/:executionName
+
+Get the execution information.
+
+#### GET /sessions/:sessionName/executions/:executionName/result
+
+Get the result image of the execution.
+
+Output: image file
 
 ## Architecture design
 
@@ -80,16 +135,6 @@ The workers can respond to resource and result transferring request through HTTP
 
 Every time each worker finishes its long task, finish RPC call will be sent to the master.
 
-## REST API
-
-* Session
-  * POST /sessions
-  * GET /sessions/:sessionName
-  * DELETE /sessions/:sessionName
-* Execution
-  * POST /sessions/:sessionName/executions
-  * GET /sessions/:sessionName/executions/:executionName
-  * GET /sessions/:sessionName/executions/:executionName/result
 
 ## Coding style guide
 
@@ -100,7 +145,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * Make external OAuth storages compatible with francine REST APIs
 * Write benchmark
 * Support advanced logging
-* Support LTE process caching
 * Support Google Drive as file storage
 * Write demo
 
