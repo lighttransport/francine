@@ -71,18 +71,19 @@ The users of Francine API can directly create sessions and executions but cannot
 Create a session.
 
 Input:
-        {
-            "producer": "ao" | "mallie" | "lte",
-            "format": "png" | "jpg" | "exr",
-            "resources": [
-                {
-                    "type": "dropbox",
-                    "path": "/path/to/the/file/in/dropbox",
-                    "dst": "file_name_to_be_placed"
-                },
-                ...
-            ]
-        }
+
+    {
+        "producer": "ao" | "mallie" | "lte",
+        "format": "png" | "jpg" | "exr",
+        "resources": [
+            {
+                "type": "dropbox",
+                "path": "/path/to/the/file/in/dropbox",
+                "dst": "file_name_to_be_placed"
+            },
+            ...
+        ]
+    }
 
 #### GET /sessions/:sessionName
 
@@ -99,11 +100,12 @@ Delete the session.
 Create an execution.
 
 Input:
-        {
-            "sessionName": "givenSessionName",
-            "parallel": 8 // Number of parallelized tasks
-            "update": {} // Update data (depend on producer types)
-        }
+
+    {
+        "sessionName": "givenSessionName",
+        "parallel": 8 // Number of parallelized tasks
+        "update": {} // Update data (depend on producer types)
+    }
 
 The content of update will be applied to all the fllowing executions.
 
