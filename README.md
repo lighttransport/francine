@@ -30,6 +30,8 @@ Write a configuration file at ~/.francinerc:
 
 The files under ltePath and malliePath are automatically forwarded to the cluster.
 
+Both ltePath and malliePath are optional.
+
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
 ### Test locally
@@ -42,7 +44,7 @@ Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.com/sdk/) and written ~/.francinerc.
 
     ./deploy.sh
-    curl http://your.master.gce.instance:3000/
+    curl http://your.master.gce.instance:3000/?parallel=16
 
 To stop the cluster, run
 
