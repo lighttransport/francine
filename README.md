@@ -23,7 +23,7 @@ Write a configuration file at ~/.francinerc:
             "apiKey": "(Dropbox API key)",
             "apiSecret": "(Dropbox API secret)"
         },
-        "ltePath": "/path/to/lte/lte_Linux_x64",
+        "ltePath": "/path/to/lte/lte_Linux_x64", // v1.2.0 or later supported.
         "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
     }
@@ -152,22 +152,24 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
-* Make external OAuth storages compatible with francine REST APIs
-* Support advanced logging
-* Support Google Drive as file storage
-* Write demo
-
-* Write auto-scaling policy
-* Write scheduling policy
-* Write error handling and fault tolerant scheduling
-* Support dedicated resource file storage
-* Support REST API authentication
-* Test in 10k nodes environment and improve scalability
-* Improve REST API
-* Support other API interfaces (e.g. WebSocket)
-* Support Amazon EC2 as an instance type
-* Support request snapshotting
-* Use ES6 Promise instead of Q
+* [ ] Make external OAuth storages compatible with francine REST APIs
+* [ ] Support advanced logging
+* [ ] Support Google Drive as file storage
+* [ ] Write demo
+* [ ] Write auto-scaling policy
+* [ ] Write scheduling policy
+* [ ] Write error handling and fault tolerant scheduling
+* [ ] Support dedicated resource file storage
+* [ ] Support REST API authentication
+* [ ] Test in 10k nodes environment and improve scalability
+* [ ] Improve REST API
+* [ ] Support other API interfaces (e.g. WebSocket)
+* [ ] Support Amazon EC2 as an instance type
+* [ ] Support request snapshotting
+* [ ] Use ES6 Promise instead of Q
+* GCE backend
+  * [ ] Use Preemptive VM for worker node
+    * http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html
 
 ## References
 
