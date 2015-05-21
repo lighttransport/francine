@@ -17,13 +17,14 @@ Write a configuration file at ~/.francinerc:
             "project": "(Google Compute Engine project name)",
             "zone": "us-central1-a",
             "masterMachineType": "n1-highcpu-2",
-            "workerMachineType": "n1-highcpu-4"
+            "workerMachineType": "n1-highcpu-4",
+            "preemptiveVMRate": 100
         },
         "dropbox": {
             "apiKey": "(Dropbox API key)",
             "apiSecret": "(Dropbox API secret)"
         },
-        "ltePath": "/path/to/lte/lte_Linux_x64", // v1.2.0 or later supported.
+        "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
     }
@@ -31,6 +32,8 @@ Write a configuration file at ~/.francinerc:
 The files under ltePath and malliePath are automatically forwarded to the cluster.
 
 Both ltePath and malliePath are optional.
+
+Specify integer value from 0 to 100 for `preemptiveVMRate`. For example, 100 means francine may create all worker instances with preemptive scheduling. 0 means francine may create all ordinal instanecs. 25 means francine may allocate 25% of instances with preemptive scheduing, 75% of instances with ordinal scheduling. Currently, when `preemptiveVMRate` is greater than 0, all instances will have preemptive scheduling(due to the restriction of GCE's instance template functionality?)
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
@@ -168,7 +171,7 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * [ ] Support request snapshotting
 * [ ] Use ES6 Promise instead of Q
 * GCE backend
-  * [ ] Use Preemptive VM for worker node
+  * [x] Use Preemptive VM for worker node
     * http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html
 
 ## References
