@@ -18,7 +18,7 @@ Write a configuration file at ~/.francinerc:
             "zone": "us-central1-a",
             "masterMachineType": "n1-highcpu-2",
             "workerMachineType": "n1-highcpu-4",
-            "preemptiveVMRate": 100
+            "isPreemptive": true
         },
         "dropbox": {
             "apiKey": "(Dropbox API key)",
@@ -33,7 +33,7 @@ The files under ltePath and malliePath are automatically forwarded to the cluste
 
 Both ltePath and malliePath are optional.
 
-Specify integer value from 0 to 100 for `preemptiveVMRate`. For example, 100 means francine may create all worker instances with preemptive scheduling. 0 means francine may create all ordinal instanecs. 25 means francine may allocate 25% of instances with preemptive scheduing, 75% of instances with ordinal scheduling. Currently, when `preemptiveVMRate` is greater than 0, all instances will have preemptive scheduling(due to the restriction of GCE's instance template functionality?)
+Set isPreemptive option true to use preemptive instances for workers in Google Compute Engine.
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
