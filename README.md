@@ -171,6 +171,8 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * [ ] Support Amazon EC2 as an instance type
 * [ ] Support request snapshotting
 * [ ] Use ES6 Promise instead of Q
+* [ ] Remove NAT gateway in the master instance (Distribute resource fetching to some workers with global IPs)
+  * All the traffic passes through the master instance in the current implementation, so it might lead to scalability problem.
 
 ## References
 

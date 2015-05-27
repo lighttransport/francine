@@ -5,11 +5,19 @@
 set -e
 
 apt-get update -y
-apt-get install -y nodejs npm supervisor rsync build-essential g++ libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1
+apt-get install -y nodejs npm supervisor rsync build-essential g++ libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1 iptables-persistent
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm install
+
+# Compile aobench for testing
 gcc ao.c lodepng.c -lm -o ao
 
+# Configure NAT gateway
+sysctl -w net.ipv4.ip_forward=1
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+yes | service iptables-persistent save
+
+# Compile Mallie renderer if exists
 if [ -d 'mallie' ]; then
 	cd mallie
 	. scripts/setup_linux.sh
@@ -17,10 +25,12 @@ if [ -d 'mallie' ]; then
 	cd ..
 fi
 
+# Compile Compositor
 cd compositor
 . ./compile.sh
 cd ..
 
+# Copy files to root home directory
 sudo rsync -rtv . /root
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
