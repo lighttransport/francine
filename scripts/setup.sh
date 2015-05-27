@@ -16,7 +16,7 @@ gcc ao.c lodepng.c -lm -o ao
 # Configure NAT gateway
 ufw default allow
 ufw default allow routed
-sysctl -w net.ipv4.ip_forward=1
+echo net/ipv4/ip_forward=1 >> /etc/ufw/sysctl.conf
 cat /etc/ufw/before.rules > /tmp/before.rules
 cat > /etc/ufw/before.rules <<EOF
 *nat
