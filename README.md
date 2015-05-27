@@ -19,7 +19,7 @@ Write a configuration file at ~/.francinerc:
             "masterMachineType": "n1-highcpu-2",
             "workerMachineType": "n1-highcpu-4",
             "isPreemptive": true,
-	    "prefix": "instance-name-prefix"
+            "prefix": "instance-name-prefix"
         },
         "dropbox": {
             "apiKey": "(Dropbox API key)",
@@ -34,7 +34,7 @@ The files under ltePath and malliePath are automatically forwarded to the cluste
 
 Both ltePath and malliePath are optional.
 
-Set isPreemptive option true to use preemptive instances for workers in Google Compute Engine.
+Set isPreemptive option true to use [preemptive instances](http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html) for workers in Google Compute Engine.
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
@@ -171,9 +171,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * [ ] Support Amazon EC2 as an instance type
 * [ ] Support request snapshotting
 * [ ] Use ES6 Promise instead of Q
-* GCE backend
-  * [x] Use Preemptive VM for worker node
-    * http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html
 
 ## References
 
