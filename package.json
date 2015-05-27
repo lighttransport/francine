@@ -21,6 +21,7 @@
     "express": "4.11.2",
     "http": "0.0.0",
     "jayson": "^1.2.0",
+    "jsonwebtoken": "^5.0.1",
     "mkdirp": "0.5.0",
     "multitransport-jsonrpc": "0.8.0",
     "optimist": "0.6.1",
