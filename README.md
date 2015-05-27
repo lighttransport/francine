@@ -25,6 +25,7 @@ Write a configuration file at ~/.francinerc:
             "apiKey": "(Dropbox API key)",
             "apiSecret": "(Dropbox API secret)"
         },
+	"privateKey": "(private key for auth token francine issues)",
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
@@ -114,7 +115,6 @@ Create an execution.
 Input:
 
     {
-        "sessionName": "givenSessionName",
         "parallel": 8 // Number of parallelized tasks
         "update": {} // Update data (depend on producer types)
     }
