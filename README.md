@@ -18,7 +18,8 @@ Write a configuration file at ~/.francinerc:
             "zone": "us-central1-a",
             "masterMachineType": "n1-highcpu-2",
             "workerMachineType": "n1-highcpu-4",
-            "isPreemptive": true
+            "isPreemptive": true,
+	    "prefix": "instance-name-prefix"
         },
         "dropbox": {
             "apiKey": "(Dropbox API key)",
