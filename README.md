@@ -25,7 +25,10 @@ Write a configuration file at ~/.francinerc:
             "apiKey": "(Dropbox API key)",
             "apiSecret": "(Dropbox API secret)"
         },
-	"privateKey": "(private key for auth token francine issues)",
+        "users": {
+            "yourusernameforfrancine": "yourpasswordforfrancine"
+        },
+        "privateKey": "(private key for auth token francine issues)",
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256
@@ -71,6 +74,63 @@ The users of Francine API can directly create sessions and executions but cannot
 
 ## REST API
 
+### Authentication
+
+#### POST /auth 
+
+Get API token for francine. You should specify the given token using X-API-Token header to corresponding API calls.
+
+Input:
+
+    {
+        "userName": "yourusernameforfrancine",
+        "password": "yourpasswordforfrancine"
+    }
+
+Output(Success):
+
+    {
+        "authToken": "yourapitoken"
+    }
+
+Output(Failure):
+
+    {
+        "error": "(reason)"
+    }
+
+#### GET /auth/:resourceName
+
+Get OAuth URL for resource providers. Currently only supports resourceName = dropbox.
+
+Output:
+
+    {
+        "authorizeUrl": "https://urlforoauth"
+    }
+
+#### POST /auth/:resourceName
+
+Associate the authorized resource provider to the francine account.
+
+Input:
+
+    {
+        "code": "(OAuth authorization code given by the resource provider)"
+    }
+
+Output(Success):
+
+    {
+        "Success": true
+    }
+
+Output(Failure):
+
+    {
+        "error": "(reason)"
+    }
+
 ### Session
 
 #### POST /sessions
@@ -104,7 +164,7 @@ Get the session information.
 
 #### DELETE /sessions/:sessionName
 
-Delete the session.
+Delete the session and the associated executions.
 
 ### Execution
 
