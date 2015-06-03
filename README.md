@@ -31,7 +31,8 @@ Write a configuration file at ~/.francinerc:
         "privateKey": "(private key for auth token francine issues)",
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
-        "staticInstanceSize": 256
+        "staticInstanceSize": 256,
+	"chaos": 10
     }
 
 The files under ltePath and malliePath are automatically forwarded to the cluster.
@@ -41,6 +42,8 @@ Both ltePath and malliePath are optional.
 Set isPreemptive option true to use [preemptive instances](http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html) for workers in Google Compute Engine.
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
+
+chaos option is percentile that each instance (currently only worker instance) randomly fail (inspired by Netflix's Chaos Monkey).
 
 ### Test locally
 
