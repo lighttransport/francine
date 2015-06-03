@@ -101,13 +101,15 @@ Output(Failure):
 
 #### GET /auth/:resourceName
 
-Get OAuth URL for resource providers. Currently only supports resourceName = dropbox.
+Get OAuth status for each resource provider. Currently only supports resourceName = dropbox.
 
 Output:
 
     {
-        "authorizeUrl": "https://urlforoauth"
+        "authorizeUrl": "https://urlforoauth",
+	"authorized": boolean
     }
+
 
 #### POST /auth/:resourceName
 
