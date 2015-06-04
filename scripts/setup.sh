@@ -47,7 +47,7 @@ sudo rsync -rtv . /root
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
 [program:francine]
-command=node /root/lib/main --instanceType=$1 --useMetadata=true
+command=bash -c "ulimit -n 65536; exec node /root/lib/main --instanceType=$1 --useMetadata=true"
 autostart=true
 autorestart=true
 stderr_logfile = /var/log/supervisor/francine-stderr.log
