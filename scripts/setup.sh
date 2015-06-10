@@ -29,6 +29,12 @@ cat /tmp/before.rules >> /etc/ufw/before.rules
 ufw disable
 yes | ufw enable
 
+# Configure ulimits
+cat >> /etc/security/limits.conf <<EOF
+*	soft	nofile	8192
+*	hard	nofile	8192
+EOF
+
 # Compile Mallie renderer if exists
 if [ -d 'mallie' ]; then
 	cd mallie
@@ -47,7 +53,7 @@ sudo rsync -rtv . /root
 
 cat > /etc/supervisor/conf.d/francine.conf <<EOF
 [program:francine]
-command=node /root/lib/main --instanceType=$1 --useMetadata=true
+command=bash -c "ulimit -n 8192 && exec node /root/lib/main --instanceType=$1 --useMetadata=true"
 autostart=true
 autorestart=true
 stderr_logfile = /var/log/supervisor/francine-stderr.log
