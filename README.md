@@ -43,7 +43,7 @@ Set isPreemptive option true to use [preemptive instances](http://googlecloudpla
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
 
-chaos option is percentile that each instance (currently only worker instance) randomly fail (inspired by Netflix's Chaos Monkey).
+chaos is percentile that each worker instance randomly fails. It is inspired by Netflix's Chaos Monkey.
 
 ### Test locally
 
@@ -227,9 +227,7 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 * [ ] Write demo
 * [ ] Write auto-scaling policy
 * [ ] Write scheduling policy
-* [ ] Write error handling and fault tolerant scheduling
 * [ ] Support dedicated resource file storage
-* [ ] Support REST API authentication
 * [ ] Test in 10k nodes environment and improve scalability
 * [ ] Improve REST API
 * [ ] Support other API interfaces (e.g. WebSocket)
