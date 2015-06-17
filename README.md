@@ -28,13 +28,20 @@ Write a configuration file at ~/.francinerc:
         "users": {
             "yourusernameforfrancine": "yourpasswordforfrancine"
         },
+
         "privateKey": "(private key for auth token francine issues)",
+
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
+
         "restPort": 3000,
-        "wsPort": 30001,
+        "wsPort": 3001,
+
+        "instanceManagerType": "(static and twostate are supported)",
         "staticInstanceSize": 256,
         "manageInterval": 60,
+
+	"disableZombieDestroy": false,
         "chaos": 10
     }
 
@@ -50,9 +57,13 @@ restPort is TCP port that francine master uses for REST API.
 
 wsPort is TCP port that francine master uses for WebSocket API.
 
+instanceManagerType is type of instance management policy for the cluster. Currently, static(keep staticInstanceSize) and twostate(keep 1 or staticInstanceSize based on the usage of the last 10 minutes) are available.
+
 manageInterval is an interval that francine does instance management.
 
-chaos is percentile that each worker instance randomly fails. It is inspired by Netflix's Chaos Monkey.
+disableZombieDestroy disables automatic destruction of zombie instances. It is generally for debugging.
+
+chaos is percentile that each worker instance randomly fails. It is inspired by Netflix's Chaos Monkey. 
 
 ### Test locally
 
@@ -201,7 +212,7 @@ Input(WebSocket):
 Output:
 
 If ?block=true is specified, it will return the resulting image file in binary.
-Otherwise, it will return the same content as GET /sessions/:sessionName.
+Otherwise, it will return the session information (see getSession).
    
 
 #### getSession (GET /sessions/:sessionName)
