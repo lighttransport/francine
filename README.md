@@ -221,16 +221,12 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
-* [ ] Make external OAuth storages compatible with francine REST APIs
 * [ ] Support advanced logging
 * [ ] Support Google Drive as file storage
-* [ ] Write demo
-* [ ] Write auto-scaling policy
+* [ ] Write advanced auto-scaling policy
 * [ ] Write scheduling policy
 * [ ] Support dedicated resource file storage
 * [ ] Test in 10k nodes environment and improve scalability
-* [ ] Improve REST API
-* [ ] Support other API interfaces (e.g. WebSocket)
 * [ ] Support Amazon EC2 as an instance type
 * [ ] Support request snapshotting
 * [ ] Use ES6 Promise instead of Q
