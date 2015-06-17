@@ -292,7 +292,7 @@ The format of the returned data is subject to change.
 
 You cannot delete an execution alone. If you want to delete and execution, you have to delete the whole associated session.
 
-#### GET /sessions/:sessionName/executions/:executionName/result
+#### getExecutionResult (GET /sessions/:sessionName/executions/:executionName/result)
 
 Get the resulting image of the execution.
 
