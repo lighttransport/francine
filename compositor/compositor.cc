@@ -1,4 +1,5 @@
 // Compositor: composite PNG, JPEG, EXR images
+// Copyright 2015 Light Transport Entertainment.
 
 #include <cassert>
 #include <cstdio>
@@ -215,28 +216,39 @@ int SaveExr(const std::string& file_name,
 int main(int argc, char *argv[]) {
   if (argc < 4) {
     fprintf(stderr,
-            "usage: compositor <output type> <output file> <input files> ...\n");
+            "usage: compositor [--weight] <output type> "
+            "<output file> [weight] <input files> ...\n");
     fprintf(stderr, "<output type> = png | jpg | exr\n");
     return 1;
   }
 
-  std::string output_type = argv[1];
-  std::string output_file_name = argv[2];
+  int i = 1;
+  std::string output_type = argv[i++];
+  bool hasWeight = false;
+  if (output_type == "--weight") {
+    hasWeight = true;
+    output_type = argv[i++];
+  }
+  std::string output_file_name = argv[i++];
+  std::vector<int> input_weights;
   std::vector<std::string> input_file_names;
-  for (int i = 3; i < argc; ++i) {
-    input_file_names.push_back(argv[i]);
+  while (i < argc) {
+    if (hasWeight) {
+      input_weights.push_back(atoi(argv[i++]));
+    }
+    input_file_names.push_back(argv[i++]);
   }
 
   std::vector<double> accumulated;
   double count = 0;
   int width, height;
 
-  for (std::vector<std::string>::iterator it = input_file_names.begin();
-       it != input_file_names.end(); ++it) {
+  for (i = 0; i < input_file_names.size(); ++i) {
     std::vector<double> image;
     int current_width, current_height;
-    if (LoadImage(*it, &image, &current_width, &current_height)) {
-      fprintf(stderr, "failed to load image %s\n", it->c_str());
+    if (LoadImage(
+            input_file_names[i], &image, &current_width, &current_height)) {
+      fprintf(stderr, "failed to load image %s\n", input_file_names[i].c_str());
       return 1;
     }
 
@@ -246,11 +258,19 @@ int main(int argc, char *argv[]) {
       height = current_height;
     }
 
-    for (int i = 0; i < image.size(); ++i) {
-      accumulated[i] += image[i];
+    for (int j = 0; j < image.size(); ++j) {
+      if (hasWeight) {
+        accumulated[j] += image[j] * input_weights[i];
+      } else {
+        accumulated[j] += image[j];
+      }
     }
 
-    ++count;
+    if (hasWeight) {
+      count += input_weights[i];
+    } else {
+      ++count;
+    }
   }
 
   for (int i = 0; i < accumulated.size(); ++i) {
