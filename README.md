@@ -31,7 +31,10 @@ Write a configuration file at ~/.francinerc:
         "privateKey": "(private key for auth token francine issues)",
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
+        "restPort": 3000,
+        "wsPort": 30001,
         "staticInstanceSize": 256,
+        "manageInterval": 60,
         "chaos": 10
     }
 
@@ -42,6 +45,12 @@ Both ltePath and malliePath are optional.
 Set isPreemptive option true to use [preemptive instances](http://googlecloudplatform.blogspot.jp/2015/05/Introducing-Preemptible-VMs-a-new-class-of-compute-available-at-70-off-standard-pricing.html) for workers in Google Compute Engine.
 
 Mallie can be obtained from [here](https://github.com/lighttransport/mallie).
+
+restPort is TCP port that francine master uses for REST API.
+
+wsPort is TCP port that francine master uses for WebSocket API.
+
+manageInterval is an interval that francine does instance management.
 
 chaos is percentile that each worker instance randomly fails. It is inspired by Netflix's Chaos Monkey.
 
@@ -65,27 +74,36 @@ You can see the web dashboard on
 
     http://your.master.gce.instance:4000/
 
-## API design
+## REST API / WebSocket API
 
 There are sessions. The sessions are associated to each user. The sessions can have associated resources. The resources once associated to the session are immutable. The resources can be retrieved from cloud storages e.g. Google Drive and Dropbox. They are spread to workers efficiently.
 
-The sessions can have their executions. Each execution can update the session. The detail of the updating differs among producers.
+The sessions can have their executions. Each execution can update the session. The details of the updating options depend on producers.
 
 The executions are transparently divided into tasks. There are two types of tasks: productions and reductions. A producer is a renderer. A reducer is a synthesizer that makes an image from many images.
 
 The users of Francine API can directly create sessions and executions but cannot control tasks.
 
-## REST API
-
 ### Authentication
 
-#### POST /auth 
+#### authenticate (POST /auth)
 
+(REST)
 Get API token for francine. You should specify the given token using X-API-Token header to corresponding API calls.
 
-Input:
+(WebSocket) Authenticate for the WebSocket connection. All commands that will be sent through the connection will be authenticated.
+
+Input(REST):
 
     {
+        "userName": "yourusernameforfrancine",
+        "password": "yourpasswordforfrancine"
+    }
+
+Input(WebSocket):
+
+    {
+        "command": "authenticate",
         "userName": "yourusernameforfrancine",
         "password": "yourpasswordforfrancine"
     }
@@ -102,9 +120,16 @@ Output(Failure):
         "error": "(reason)"
     }
 
-#### GET /auth/:resourceName
+#### getAuthorizeStatus (GET /auth/:resourceName)
 
 Get OAuth status for each resource provider. Currently only supports resourceName = dropbox.
+
+Input(WebSocket):
+
+    {
+        "command": "getAuthorizeStatus",
+        "resourceName": "dropbox"
+    }
 
 Output:
 
@@ -114,15 +139,24 @@ Output:
     }
 
 
-#### POST /auth/:resourceName
+#### registerResourceToken (POST /auth/:resourceName)
 
 Associate the authorized resource provider to the francine account.
 
-Input:
+Input(REST):
 
     {
         "code": "(OAuth authorization code given by the resource provider)"
     }
+
+Input(WebSocket):
+
+    {
+        "command": "registerResourceToken",
+        "resourceName": "dropbox",
+        "code": "(OAuth authorization code given by the resource provider)"
+    }
+
 
 Output(Success):
 
@@ -138,11 +172,11 @@ Output(Failure):
 
 ### Session
 
-#### POST /sessions
+#### createSession (POST /sessions)
 
 Create a session.
 
-Input:
+Input(REST):
 
     {
         "producer": "ao" | "mallie" | "lte",
@@ -157,44 +191,119 @@ Input:
         ]
     }
 
+Input(WebSocket):
+
+    {
+        "command": "createSession",
+        (following options are same)
+    }
+
 Output:
 
 If ?block=true is specified, it will return the resulting image file in binary.
 Otherwise, it will return the same content as GET /sessions/:sessionName.
    
 
-#### GET /sessions/:sessionName
+#### getSession (GET /sessions/:sessionName)
 
 Get the session information.
 
-#### DELETE /sessions/:sessionName
+Input(WebSocket):
+
+    {
+        "command": "getSession",
+        "sessionName": ":sessionName"
+    }
+
+#### deleteSession (DELETE /sessions/:sessionName)
 
 Delete the session and the associated executions.
 
+Input(WebSocket):
+
+    {
+        "command": "deleteSession",
+        "sessionName": ":sessionName"
+    }
+
 ### Execution
 
-#### POST /sessions/:sessionName/executions [?block=true]
+#### createExecution (POST /sessions/:sessionName/executions [?block=true])
 
 Create an execution.
 
-Input:
+Input(REST):
 
     {
         "parallel": 8 // Number of parallelized tasks
         "update": {} // Update data (depend on producer types)
     }
 
-The content of update will be applied to all the fllowing executions.
+Output:
 
-#### GET /sessions/:sessionName/executions/:executionName
+If block=true is specified, it will return rendered image directly.
+
+If not specified, it will immediately return execution information and start rendering asynchronously (see getExecution).
+
+Input(WebSocket):
+
+    {
+        "command": "createExecution",
+        "parallel": 8 // Number of parallelized tasks
+        "update": {} // Update data (depend on producer types)
+    }
+
+The contents of the updates will be applied to all the following executions.
+
+Output(WebSocket):
+
+    {
+        "format": "png" | "jpg" | "exr",
+        "image": "(rendered image file in base64 form)"
+    }
+
+The format of the returned data is subject to change.
+
+#### getExecution (GET /sessions/:sessionName/executions/:executionName)
 
 Get the execution information.
+
+Input(WebSocket):
+
+    {
+        "command": "getExecution",
+        "executionName": ":executionName"
+    }
+
+Output:
+
+The format of the returned data is subject to change.
+
+You cannot delete an execution alone. If you want to delete and execution, you have to delete the whole associated session.
 
 #### GET /sessions/:sessionName/executions/:executionName/result
 
 Get the resulting image of the execution.
 
-Output: resulting image file in binary
+Input(WebSocket):
+
+    {
+        "command": "getExecutionResult",
+        "executionName": ":executionName"
+    }
+
+Output(REST):
+
+resulting image file in binary
+
+Output(WebSocket):
+
+    {
+        "format": "png" | "jpg" | "exr",
+        "image": "(rendered image file in base64 form)"
+    }
+
+The format of the returned data is subject to change.
 
 ## Architecture design
 
