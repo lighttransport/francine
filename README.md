@@ -41,7 +41,7 @@ Write a configuration file at ~/.francinerc:
         "staticInstanceSize": 256,
         "manageInterval": 60,
 
-	"disableZombieDestroy": false,
+        "disableZombieDestroy": false,
         "chaos": 10
     }
 
