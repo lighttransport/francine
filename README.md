@@ -32,7 +32,7 @@ Write a configuration file at ~/.francinerc:
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
         "staticInstanceSize": 256,
-	"chaos": 10
+        "chaos": 10
     }
 
 The files under ltePath and malliePath are automatically forwarded to the cluster.
@@ -110,7 +110,7 @@ Output:
 
     {
         "authorizeUrl": "https://urlforoauth",
-	"authorized": boolean
+        "authorized": boolean
     }
 
 
