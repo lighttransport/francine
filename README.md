@@ -95,6 +95,19 @@ The executions are transparently divided into tasks. There are two types of task
 
 The users of Francine API can directly create sessions and executions but cannot control tasks.
 
+### WebSocket specific fields
+
+Outputs through WebSocket have WebSocket specific fields.
+
+    {
+        "command": "(name of the command)",
+        "responseId": "(response ID)"
+    }
+
+command is the command name that emits the response.
+
+responseId is the number that you specified in the responseId field of the request (optional).
+
 ### Authentication
 
 #### authenticate (POST /auth)
@@ -115,6 +128,7 @@ Input(WebSocket):
 
     {
         "command": "authenticate",
+        ("responseId": number),
         "userName": "yourusernameforfrancine",
         "password": "yourpasswordforfrancine"
     }
@@ -122,12 +136,14 @@ Input(WebSocket):
 Output(Success):
 
     {
+        (WebSocket specific fields)
         "authToken": "yourapitoken"
     }
 
 Output(Failure):
 
     {
+        (WebSocket specific fields)
         "error": "(reason)"
     }
 
@@ -139,12 +155,14 @@ Input(WebSocket):
 
     {
         "command": "getAuthorizeStatus",
+        ("responseId": number),
         "resourceName": "dropbox"
     }
 
 Output:
 
     {
+        (WebSocket specific fields)
         "authorizeUrl": "https://urlforoauth",
         "authorized": boolean
     }
@@ -164,6 +182,7 @@ Input(WebSocket):
 
     {
         "command": "registerResourceToken",
+        ("responseId": number),
         "resourceName": "dropbox",
         "code": "(OAuth authorization code given by the resource provider)"
     }
@@ -172,12 +191,14 @@ Input(WebSocket):
 Output(Success):
 
     {
-        "Success": true
+        (WebSocket specific fields)
+        "success": true
     }
 
 Output(Failure):
 
     {
+        (WebSocket specific fields)
         "error": "(reason)"
     }
 
@@ -187,9 +208,12 @@ Output(Failure):
 
 Create a session.
 
-Input(REST):
+Input:
 
     {
+        "command": "createSession", (if WebSocket)
+        ("responseId": number),
+
         "producer": "ao" | "mallie" | "lte",
         "format": "png" | "jpg" | "exr",
         "resources": [
@@ -200,13 +224,6 @@ Input(REST):
             },
             ...
         ]
-    }
-
-Input(WebSocket):
-
-    {
-        "command": "createSession",
-        (following options are same)
     }
 
 Output:
@@ -223,6 +240,8 @@ Input(WebSocket):
 
     {
         "command": "getSession",
+        ("responseId": number),
+
         "sessionName": ":sessionName"
     }
 
@@ -234,6 +253,8 @@ Input(WebSocket):
 
     {
         "command": "deleteSession",
+        ("responseId": number),
+
         "sessionName": ":sessionName"
     }
 
@@ -260,6 +281,8 @@ Input(WebSocket):
 
     {
         "command": "createExecution",
+        ("responseId": number),
+
         "parallel": 8 // Number of parallelized tasks
         "update": {} // Update data (depend on producer types)
     }
@@ -269,6 +292,7 @@ The contents of the updates will be applied to all the following executions.
 Output(WebSocket):
 
     {
+        (WebSocket specific fields)
         "format": "png" | "jpg" | "exr",
         "image": "(rendered image file in base64 form)"
     }
@@ -283,6 +307,8 @@ Input(WebSocket):
 
     {
         "command": "getExecution",
+        ("responseId": number),
+
         "executionName": ":executionName"
     }
 
@@ -300,6 +326,8 @@ Input(WebSocket):
 
     {
         "command": "getExecutionResult",
+        ("responseId": number),
+
         "executionName": ":executionName"
     }
 
@@ -310,6 +338,7 @@ resulting image file in binary
 Output(WebSocket):
 
     {
+        (WebSocket specific fields)
         "format": "png" | "jpg" | "exr",
         "image": "(rendered image file in base64 form)"
     }
