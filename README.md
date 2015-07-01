@@ -365,7 +365,7 @@ Output(WebSocket):
         "timeouts": "(number of timeouts)",
         "waiting": "(number of waiting tasks)",
         "running": "(number of running tasks)",
-	"workers": {}  // list of workers and their status
+        "workers": {}  // list of workers and their status
     }
 
 ## Architecture design
