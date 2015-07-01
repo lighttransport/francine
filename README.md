@@ -345,6 +345,29 @@ Output(WebSocket):
 
 The format of the returned data is subject to change.
 
+#### enableStatus (WebSocket only)
+
+Enables status broadcasting. For dashboard.
+
+Input:
+
+    {
+        "command": "enableStatus",
+        ("responseId": number)
+    }
+
+Output(WebSocket):
+
+    {
+        (WebSocket specific fields)
+        "sessions": "(number of sessions)",
+        "executions": "(number of executions)",
+        "timeouts": "(number of timeouts)",
+        "waiting": "(number of waiting tasks)",
+        "running": "(number of running tasks)",
+	"workers": {}  // list of workers and their status
+    }
+
 ## Architecture design
 
 There are two type of instances: master and workers. All the tasks are scheduled by the master. The master is a [SPOF](http://en.wikipedia.org/wiki/Single_point_of_failure).
