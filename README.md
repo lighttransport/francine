@@ -17,6 +17,7 @@ Write a configuration file at ~/.francinerc:
             "project": "(Google Compute Engine project name)",
             "zone": "us-central1-a",
             "masterMachineType": "n1-highcpu-2",
+            "builderMachineType": "n1-highmem-4",
             "workerMachineType": "n1-highcpu-4",
             "isPreemptive": true,
             "prefix": "instance-name-prefix"
