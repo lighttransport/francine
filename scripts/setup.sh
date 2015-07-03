@@ -43,6 +43,27 @@ if [ -d 'mallie' ]; then
 	cd ..
 fi
 
+# Compile nanogiex if exists
+if [ -d 'nanogiex' ]; then
+	# Install some packages
+	apt-get update -qq
+	apt-get install -qq -y git software-properties-common 
+	add-apt-repository -y ppa:george-edison55/cmake-3.x
+	apt-get update -qq
+	apt-get install -qq -y python cmake build-essential libfreeimage-dev libboost-dev libboost-regex-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev freeglut3-dev libxmu-dev libxi-dev libglm-dev libyaml-cpp-dev
+
+	# Install assimp
+	git clone --depth=1 --branch v3.1.1 https://github.com/assimp/assimp.git assimp
+	mkdir -p assimp/build && cd assimp/build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && make install && cd ../../
+	
+	# Install embree
+	git clone --depth=1 --branch v2.5.1 https://github.com/embree/embree.git embree
+	mkdir -p embree/build && cd embree/build && cmake -D CMAKE_BUILD_TYPE=Release -D ENABLE_ISPC_SUPPORT=OFF -D RTCORE_TASKING_SYSTEM=INTERNAL -D ENABLE_TUTORIALS=OFF .. && make -j && make install && cp libembree.so /usr/local/lib && cd ../../
+
+	# Build nanogiex
+	mkdir -p nanogiex/build && cd nanogiex/build && BOOST_ROOT="" BOOST_INCLUDEDIR="/usr/include" BOOST_LIBRARYDIR="/usr/lib/x86_64-linux-gnu" cmake -DCMAKE_BUILD_TYPE=Release .. && make -j && cd ../../
+fi
+
 # Compile Compositor
 cd compositor
 . ./compile.sh
