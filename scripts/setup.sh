@@ -59,3 +59,13 @@ autorestart=true
 stderr_logfile = /var/log/supervisor/francine-stderr.log
 stdout_logfile = /var/log/supervisor/francine-stdout.log
 EOF
+
+# self-terminator
+cat > /etc/supervisor/conf.d/terminator.conf <<EOF
+[program:terminator]
+command=bash -c "sleep 3600 && sudo /sbin/shutdown -h now"
+autostart=false
+autorestart=false
+stderr_logfile = /var/log/supervisor/terminator-stderr.log
+stdout_logfile = /var/log/supervisor/terminator-stdout.log
+EOF
