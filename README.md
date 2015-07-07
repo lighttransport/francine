@@ -395,6 +395,8 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
+* Dropbox
+  * [ ] Specify a directory and copy files in the directory.
 * [ ] Support advanced logging
 * [ ] Support Google Drive as file storage
 * [ ] Write advanced auto-scaling policy
