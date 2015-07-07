@@ -34,6 +34,7 @@ Write a configuration file at ~/.francinerc:
 
         "ltePath": "/path/to/lte/lte_Linux_x64",
         "malliePath": "/path/to/mallie",
+        "nanogiexPath": "/path/to/nanogiex",
 
         "restPort": 3000,
         "wsPort": 3001,
