@@ -2,10 +2,16 @@
 
 # Please run this script from the root directory.
 
-set -e
+# It looks sometimes apt-get fails to fetch index with the following WARNING/ERROR.
+#   W: Failed to fetch http://security.ubuntu.com/ubuntu/dists/vivid-security/universe/i18n/Translation-en  Hash Sum mismatch
+#   E: Some index files failed to download. They have been ignored, or old ones used instead.
+# We accept this warning anyaway, thus place `set -e` after the apt-get 
 
 apt-get update -y
 apt-get upgrade -y
+
+set -e
+
 apt-get install -y nodejs npm supervisor rsync build-essential g++ libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1
 update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 npm install

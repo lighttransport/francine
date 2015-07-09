@@ -19,6 +19,7 @@ Write a configuration file at ~/.francinerc:
             "masterMachineType": "n1-highcpu-2",
             "builderMachineType": "n1-highmem-4",
             "workerMachineType": "n1-highcpu-4",
+            "imageName": "image-name",
             "isPreemptive": true,
             "prefix": "instance-name-prefix"
         },
@@ -67,6 +68,8 @@ disableZombieDestroy disables automatic destruction of zombie instances. It is g
 
 chaos is percentile that each worker instance randomly fails. It is inspired by Netflix's Chaos Monkey. 
 
+`imageName` specifies image disk name for francine. Currently user must manually delete image when rebuilding image.
+
 ### Test locally
 
     ./run_locally.sh
@@ -76,6 +79,7 @@ chaos is percentile that each worker instance randomly fails. It is inspired by 
 
 Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.com/sdk/) and written ~/.francinerc.
 
+    ./create_image.sh   # Run only once in the first time or there's a change in the renderer binary.
     ./deploy.sh
     curl http://your.master.gce.instance:3000/?parallel=16
 
@@ -395,6 +399,9 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
+* GCE
+  * [ ] Cache francine image.
+* [ ] Add runC support.
 * Dropbox
   * [ ] Specify a directory and copy files in the directory.
 * [ ] Support advanced logging
