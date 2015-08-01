@@ -402,8 +402,6 @@ The project will use [Airbnb JavaScript Style Guide](https://github.com/airbnb/j
 
 ## TODOs
 
-* GCE
-  * [ ] Cache francine image.
 * [ ] Add runC support.
 * Dropbox
   * [ ] Specify a directory and copy files in the directory.
