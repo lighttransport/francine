@@ -79,9 +79,12 @@ chaos is percentile that each worker instance randomly fails. It is inspired by 
 
 Make sure you have installed the latest [Google Cloud SDK](https://cloud.google.com/sdk/) and written ~/.francinerc.
 
-    ./create_image.sh   # Run only once in the first time or there's a change in the renderer binary.
-    ./deploy.sh
-    curl http://your.master.gce.instance:3000/?parallel=16
+    # (optional) Delete previous disk image
+    $ gcloud compute images delete <image-name>
+
+    $ ./create_image.sh   # Run only once in the first time or there's a change in the renderer binary.
+    $ ./deploy.sh
+    $ curl http://your.master.gce.instance:3000/?parallel=16
 
 To stop the cluster, run
 
