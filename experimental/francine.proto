@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package francine;
+
+enum Renderer {
+	AOBENCH = 0;
+}
+
+enum ImageType {
+	PNG = 0;
+	JPEG = 1;
+	EXR = 2;
+}
+
+message File {
+	string id = 1;
+	string alias = 2;
+}
+
+message RenderRequest {
+	Renderer renderer = 1;
+	repeated File files = 2;
+	string update = 3;
+}
+
+message RenderResponse {
+	bytes image = 1;
+	ImageType image_type = 2;
+}
+
+message UploadDirectRequest {
+	string filename = 1;
+	bytes content = 2;
+}
+
+message UploadResponse {
+	string id = 1;
+	int64 expire = 2;
+}
+
+service Francine {
+	rpc Render (RenderRequest) returns (RenderResponse);
+	rpc RenderStream (stream RenderRequest) returns (stream RenderResponse);
+	rpc UploadDirect (UploadDirectRequest) returns (UploadResponse);
+	rpc UploadDirectStream (stream UploadDirectRequest) returns (UploadResponse);
+	// rpc UploadDropbox (UploadDropboxRequest) returns (UploadResponse);
+}
+
+message RunRequest {
+	Renderer renderer = 1;
+	repeated File files = 2;
+	int64 seed = 3;
+}
+message RunResponse {
+	string id = 1;
+	ImageType image_type = 2;
+}
+
+message ComposeRequest {
+	message Image {
+		string id = 1;
+		uint64 weight = 2;
+		ImageType image_type = 3;
+	}
+	repeated Image images = 1;
+	ImageType image_type = 2;
+}
+message ComposeResponse {
+	string id = 1;
+}
+
+message TransferRequest {
+	string id = 1;
+	string src_address = 2;
+}
+message TransferResponse {}
+
+message PutRequest {
+	bytes content = 1;
+}
+message PutResponse {
+	string id = 1;
+}
+
+message GetRequest {
+	string id = 1;
+}
+message GetResponse {
+	bytes content = 1;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+message DeleteResponse {}
+
+service FrancineWorker {
+	rpc Run (stream RunRequest) returns (stream RunResponse);
+	rpc Compose (ComposeRequest) returns (ComposeResponse);
+
+	rpc Transfer (TransferRequest) returns (TransferResponse);
+	rpc Put (stream PutRequest) returns (PutResponse);
+	rpc Get (GetRequest) returns (stream GetResponse);
+	rpc Delete (DeleteRequest) returns (DeleteResponse);
+}
