@@ -1,11 +1,14 @@
-#include <iostream>
 #include <string>
 
+#include <glog/logging.h>
+#include <gflags/gflags.h>
 #include <grpc++/grpc++.h>
 
 #include "lodepng.h"
 #include "picosha2.h"
 #include "francine.grpc.pb.h"
+
+DEFINE_bool(master, false, "run as master mode");
 
 extern void init_scene();
 extern void render(unsigned char *img, int w, int h, int nsubsamples);
@@ -40,7 +43,8 @@ class FrancineWorkerServiceImpl final
                    grpc::ServerReaderWriter<francine::RunResponse,
                                             francine::RunRequest>*
                    stream) override {
-    std::cerr<<"rendering started"<<std::endl;
+    LOG(INFO)<<"rendering started";
+
     francine::RunRequest request;
     if (!stream->Read(&request)) {
       return grpc::Status(grpc::INVALID_ARGUMENT, "");
@@ -54,14 +58,15 @@ class FrancineWorkerServiceImpl final
     response.set_image_type(francine::ImageType::PNG);
     stream->Write(response);
 
-    std::cerr<<"rendering finished"<<std::endl;
+    LOG(INFO)<<"rendering finished";
     return grpc::Status::OK;
   }
 
   grpc::Status Get(grpc::ServerContext* context,
                    const francine::GetRequest* request,
                    grpc::ServerWriter<francine::GetResponse>* writer) override {
-    std::cerr<<"file requested"<<std::endl;
+    LOG(INFO)<<"file requested";
+
     if (!inmemory_files_.count(request->id())) {
       return grpc::Status(grpc::NOT_FOUND, "");
     }
@@ -70,7 +75,7 @@ class FrancineWorkerServiceImpl final
     response.set_content(inmemory_files_[request->id()]);
     writer->Write(response);
 
-    std::cerr<<"file transfered"<<std::endl;
+    LOG(INFO)<<"file transfered";
     return grpc::Status::OK;
   }
 
@@ -165,9 +170,16 @@ void RunMaster() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  if (argc > 1 && std::string(argv[1]) == "--master") {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  google::InitGoogleLogging(argv[0]);
+
+  FLAGS_logtostderr = 1;
+
+  if (FLAGS_master) {
+    LOG(INFO)<<"running as master mode...";
     RunMaster();
   } else {
+    LOG(INFO)<<"running as worker mode...";
     RunWorker();
   }
   return 0;

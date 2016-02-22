@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -I/usr/local/include -pthread
-LDFLAGS = -L/usr/local/lib -lgrpc++_unsecure -lgrpc -lgpr -lprotobuf -lpthread -ldl
+LDFLAGS = -L/usr/local/lib -lgrpc++_unsecure -lgrpc -lgpr -lprotobuf -lpthread -ldl -lgflags -lglog
 PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
@@ -21,4 +21,3 @@ test: francine.pb.o francine.grpc.pb.o test.o
 
 clean:
 	rm -f *.o *.pb.cc *.pb.h francine test
-
