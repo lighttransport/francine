@@ -1,8 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <math.h>
+#include "ao.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
+#include <cmath>
+
+#include "lodepng.h"
+
+namespace {
 
 /*
 #define WIDTH        256
@@ -344,3 +350,25 @@ main(int argc, char **argv)
     return 0;
 }
 */
+
+}  // namespace
+
+std::string AoBench(const int width, const int height, const int nsubsamples) {
+  ::init_scene();
+
+  std::vector<unsigned char> img(width * height * 3);
+  ::render(img.data(), width, height, nsubsamples);
+
+  std::vector<unsigned char> img4(width * height * 4);
+  for (int i = 0; i < width * height; ++i) {
+    img4[4 * i + 0] = img[3 * i + 0];
+    img4[4 * i + 1] = img[3 * i + 1];
+    img4[4 * i + 2] = img[3 * i + 2];
+    img4[4 * i + 3] = 255;
+  }
+
+  std::vector<unsigned char> png;
+  lodepng::encode(png, img4, width, height);
+
+  return std::string(png.begin(), png.end());
+}

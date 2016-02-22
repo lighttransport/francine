@@ -7,7 +7,7 @@ GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
 all: francine test
 
-francine: francine.pb.o francine.grpc.pb.o ao.o main.o lodepng.o
+francine: francine.pb.o francine.grpc.pb.o ao.o main.o lodepng.o master.o worker.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 test: francine.pb.o francine.grpc.pb.o test.o
