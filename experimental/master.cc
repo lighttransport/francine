@@ -26,6 +26,7 @@ using grpc::Status;
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
+using grpc::ServerReader;
 using grpc::ServerReaderWriter;
 using grpc::ServerWriter;
 
@@ -107,6 +108,14 @@ Status FrancineServiceImpl::Render(
   return Status::OK;
 }
 
+Status FrancineServiceImpl::RenderStream(
+    ServerContext* context,
+    ServerReaderWriter<RenderResponse, RenderRequest>* stream) {
+  // TODO(peryaudo): Implement.
+  return Status(grpc::UNIMPLEMENTED, "");
+}
+
+
 Status FrancineServiceImpl::UploadDirect(
     ServerContext* context,
     const UploadDirectRequest* request, UploadResponse* response) {
@@ -147,6 +156,13 @@ Status FrancineServiceImpl::UploadDirect(
   LOG(INFO) << "UploadDirect finished";
 
   return Status::OK;
+}
+
+Status FrancineServiceImpl::UploadDirectStream(
+    ServerContext* context,
+    ServerReader<UploadDirectRequest>* reader, UploadResponse* response) {
+  // TODO(peryaudo): Implement.
+  return Status(grpc::UNIMPLEMENTED, "");
 }
 
 void RunMaster() {

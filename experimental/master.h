@@ -34,17 +34,15 @@ class FrancineServiceImpl final : public francine::Francine::Service {
       const francine::UploadDirectRequest* request,
       francine::UploadResponse* response) override;
 
-  /*
   virtual grpc::Status RenderStream(
       grpc::ServerContext* context,
       grpc::ServerReaderWriter<francine::RenderResponse,
-                               francine::RenderRequest>* stream);
+                               francine::RenderRequest>* stream) override;
 
   virtual grpc::Status UploadDirectStream(
       grpc::ServerContext* context,
       grpc::ServerReader<francine::UploadDirectRequest>* reader,
       francine::UploadResponse* response) override;
-  */
 
  private:
   std::vector<WorkerInfo> workers_;

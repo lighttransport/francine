@@ -12,6 +12,8 @@ using francine::ImageType;
 using francine::Renderer;
 using francine::RunRequest;
 using francine::RunResponse;
+using francine::ComposeRequest;
+using francine::ComposeResponse;
 using francine::TransferRequest;
 using francine::TransferResponse;
 using francine::PutRequest;
@@ -56,6 +58,13 @@ Status FrancineWorkerServiceImpl::Run(
 
   LOG(INFO) << "rendering finished";
   return grpc::Status::OK;
+}
+
+Status FrancineWorkerServiceImpl::Compose(
+    ServerContext* context,
+    const ComposeRequest* request, ComposeResponse* response) {
+  // TODO(peryaudo): Implement.
+  return Status(grpc::UNIMPLEMENTED, "");
 }
 
 Status FrancineWorkerServiceImpl::Transfer(

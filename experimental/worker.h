@@ -14,12 +14,10 @@ class FrancineWorkerServiceImpl final
       grpc::ServerReaderWriter<francine::RunResponse, francine::RunRequest>*
       stream) override;
 
-  /*
   virtual grpc::Status Compose(
       grpc::ServerContext* context,
       const francine::ComposeRequest* request,
       francine::ComposeResponse* response) override;
-  */
 
   virtual grpc::Status Transfer(
       grpc::ServerContext* context,
