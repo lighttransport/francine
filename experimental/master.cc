@@ -34,9 +34,9 @@ FrancineServiceImpl::FrancineServiceImpl()
 Status FrancineServiceImpl::Render(
     ServerContext* context,
     const RenderRequest* request, RenderResponse* response) {
-  ClientContext client_context;
+  auto client_context = ClientContext::FromServerContext(*context);
   std::shared_ptr<ClientReaderWriter<RunRequest, RunResponse>> stream(
-      stub_->Run(&client_context));
+      stub_->Run(client_context.get()));
 
   RunRequest run_request;
   run_request.set_renderer(Renderer::AOBENCH);
@@ -52,9 +52,9 @@ Status FrancineServiceImpl::Render(
 
   GetRequest get_request;
   get_request.set_id(run_response.id());
-  ClientContext client_context2;
+  client_context = ClientContext::FromServerContext(*context);
   std::shared_ptr<ClientReader<GetResponse>> reader(
-      stub_->Get(&client_context2, get_request));
+      stub_->Get(client_context.get(), get_request));
   GetResponse get_response;
   reader->Read(&get_response);
   status = reader->Finish();

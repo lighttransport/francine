@@ -1,5 +1,5 @@
-#include <glog/logging.h>
 #include <gflags/gflags.h>
+#include <glog/logging.h>
 
 #include "master.h"
 #include "worker.h"
