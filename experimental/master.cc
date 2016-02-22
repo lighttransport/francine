@@ -8,8 +8,12 @@ using francine::FrancineWorker;
 using francine::Renderer;
 using francine::RenderRequest;
 using francine::RenderResponse;
+using francine::UploadDirectRequest;
+using francine::UploadResponse;
 using francine::RunRequest;
 using francine::RunResponse;
+using francine::PutRequest;
+using francine::PutResponse;
 using francine::GetRequest;
 using francine::GetResponse;
 using grpc::CreateChannel;
@@ -57,8 +61,14 @@ Status FrancineServiceImpl::Render(
 
   LOG(INFO) << "work assigned to worker " << workers_[worker_idx_].address;
 
+  // TODO(peryaudo): Return error if any of request->files is expired
+
+  // Pick worker by round robin.
+  // TODO(peryaudo): Pick worker in a way that optimizes cache efficiency
   auto stub = workers_[worker_idx_].stub;
   worker_idx_ = (worker_idx_ + 1) % workers_.size();
+
+  // TODO(peryaudo): Transfer files that are given in request->files
 
   auto client_context = ClientContext::FromServerContext(*context);
   std::shared_ptr<ClientReaderWriter<RunRequest, RunResponse>> stream(
@@ -94,7 +104,49 @@ Status FrancineServiceImpl::Render(
   response->set_image(get_response.content());
   response->set_image_type(run_response.image_type());
 
-  return grpc::Status::OK;
+  return Status::OK;
+}
+
+Status FrancineServiceImpl::UploadDirect(
+    ServerContext* context,
+    const UploadDirectRequest* request, UploadResponse* response) {
+  if (worker_idx_ >= workers_.size()) {
+    LOG(ERROR) << "no worker available!";
+    return Status(grpc::RESOURCE_EXHAUSTED, "");
+  }
+
+  // Pick worker by round robin.
+  // TODO(peryaudo): Pick worker in a way that optimizes cache efficiency
+  // Keeping worker storage usage flat? It depends on optimization strategy.
+  auto&& worker = workers_[worker_idx_];
+  worker_idx_ = (worker_idx_ + 1) % workers_.size();
+
+  LOG(INFO) << "upload assigned to worker " << worker.address;
+  auto stub = worker.stub;
+
+  auto client_context = ClientContext::FromServerContext(*context);
+  PutResponse put_response;
+  std::unique_ptr<ClientWriter<PutRequest>> writer(
+      stub->Put(client_context.get(), &put_response));
+
+  PutRequest put_request;
+  put_request.set_content(request->content());
+  writer->Write(put_request);
+  writer->WritesDone();
+  auto status = writer->Finish();
+  if (!status.ok()) {
+    LOG(ERROR) << "put failed";
+    return status;
+  }
+
+  // TODO(peryaudo): set expiration
+  response->set_id(put_response.id());
+
+  worker.files.insert(put_response.id());
+
+  LOG(INFO) << "UploadDirect finished";
+
+  return Status::OK;
 }
 
 void RunMaster() {

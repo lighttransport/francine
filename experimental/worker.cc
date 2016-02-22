@@ -110,6 +110,8 @@ Status FrancineWorkerServiceImpl::Put(
     content += request.content();
   }
 
+  LOG(INFO) << "put content: " << content;
+
   response->set_id(AddInmemoryFile(content));
 
   LOG(INFO) << "put finished";
