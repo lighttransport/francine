@@ -115,7 +115,7 @@ Status FrancineServiceImpl::Render(
       stub->Run(client_context.get()));
 
   RunRequest run_request;
-  run_request.set_renderer(Renderer::AOBENCH);
+  run_request.set_renderer(request->renderer());
   stream->Write(run_request);
   stream->WritesDone();
 

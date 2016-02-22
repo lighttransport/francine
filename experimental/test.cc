@@ -5,6 +5,7 @@
 #include "francine.grpc.pb.h"
 
 using francine::Francine;
+using francine::Renderer;
 using francine::RenderRequest;
 using francine::RenderResponse;
 using francine::UploadDirectRequest;
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]) {
 
   context = std::make_shared<ClientContext>();
   RenderRequest request;
+  request.set_renderer(Renderer::PBRT);
   request.add_files()->set_id(upload_response.id());
   RenderResponse response;
   status = stub->Render(context.get(), request, &response);
