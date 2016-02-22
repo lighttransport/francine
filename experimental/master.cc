@@ -12,6 +12,8 @@ using francine::UploadDirectRequest;
 using francine::UploadResponse;
 using francine::RunRequest;
 using francine::RunResponse;
+using francine::TransferRequest;
+using francine::TransferResponse;
 using francine::PutRequest;
 using francine::PutResponse;
 using francine::GetRequest;
@@ -66,10 +68,47 @@ Status FrancineServiceImpl::Render(
 
   // Pick worker by round robin.
   // TODO(peryaudo): Pick worker in a way that optimizes cache efficiency
-  auto stub = workers_[worker_idx_].stub;
+  auto&& worker = workers_[worker_idx_];
   worker_idx_ = (worker_idx_ + 1) % workers_.size();
 
-  // TODO(peryaudo): Transfer files that are given in request->files
+  LOG(INFO) << "upload assigned to worker " << worker.address;
+  auto stub = worker.stub;
+
+  // Transfer required files that are not on the selected worker.
+  LOG(INFO) << request->files().size() << " files are required";
+  for (auto&& file : request->files()) {
+    // The required file is already on the selected worker.
+    if (worker.files.count(file.id())) {
+      LOG(INFO) << "file " << file.id() << " is already on " << worker.address;
+      continue;
+    }
+
+    TransferRequest transfer_request;
+    transfer_request.set_id(file.id());
+    // Find a worker with the file.
+    for (auto&& another_worker : workers_) {
+      if (another_worker.files.count(file.id())) {
+        transfer_request.set_src_address(another_worker.address);
+        break;
+      }
+    }
+
+    if (transfer_request.src_address().empty()) {
+      LOG(ERROR) << "worker with file " << file.id() << " does not exist";
+      return Status(grpc::DATA_LOSS, "");
+    }
+
+    LOG(INFO) << "requesting transfer of " << file.id()
+      << " to " << worker.address << " from " << transfer_request.src_address();
+
+    TransferResponse transfer_response;
+    auto client_context = ClientContext::FromServerContext(*context);
+    auto status = stub->Transfer(
+        client_context.get(), transfer_request, &transfer_response);
+    if (!status.ok()) {
+      return status;
+    }
+  }
 
   auto client_context = ClientContext::FromServerContext(*context);
   std::shared_ptr<ClientReaderWriter<RunRequest, RunResponse>> stream(
@@ -88,6 +127,8 @@ Status FrancineServiceImpl::Render(
     LOG(ERROR) << "render failed";
     return status;
   }
+
+  worker.files.insert(run_response.id());
 
   GetRequest get_request;
   get_request.set_id(run_response.id());
