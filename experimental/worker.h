@@ -44,6 +44,7 @@ class FrancineWorkerServiceImpl final
 
   std::map<std::string, std::string> inmemory_files_;
   std::mutex inmemory_files_mutex_;
+  std::atomic<int> tmp_cnt_;
 };
 
 void RunWorker();

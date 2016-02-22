@@ -4,6 +4,7 @@ package francine;
 
 enum Renderer {
 	AOBENCH = 0;
+	PBRT = 1;
 }
 
 enum ImageType {

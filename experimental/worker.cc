@@ -2,6 +2,8 @@
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <sstream>
+#include <fstream>
 #include <string>
 
 #include "ao.h"
@@ -36,6 +38,7 @@ using grpc::ServerWriter;
 
 DEFINE_string(worker_address, "0.0.0.0:50052", "worker address to bind");
 DEFINE_string(tmpdir, "/tmp", "temporary directory to store files");
+DEFINE_int64(inmemory_threshold, 0, "temporary directory to store files");
 
 Status FrancineWorkerServiceImpl::Run(
     ServerContext* context,
@@ -47,17 +50,31 @@ Status FrancineWorkerServiceImpl::Run(
   if (!stream->Read(&request)) {
     return Status(grpc::INVALID_ARGUMENT, "");
   }
-  if (request.renderer() != Renderer::AOBENCH) {
+
+  // TODO(peryaudo): Check if all these files are on the worker
+  // TODO(peryaudo): Prepare symbolic links for renderer
+  // TODO(peryaudo): splill out in memory file to disk if required
+
+  if (request.renderer() == Renderer::AOBENCH) {
+    RunResponse response;
+    response.set_id(AddInmemoryFile(AoBench()));
+    response.set_image_type(ImageType::PNG);
+    stream->Write(response);
+
+    LOG(INFO) << "rendering finished";
+    return grpc::Status::OK;
+  } else if (request.renderer() == Renderer::PBRT) {
+    LOG(INFO) << "rendering finished";
+    system("ls");
+    RunResponse response;
+    response.set_id("");
+    response.set_image_type(ImageType::PNG);
+    stream->Write(response);
+    return grpc::Status::OK;
+  } else {
+    LOG(ERROR) << "the renderer type is not implemented";
     return Status(grpc::UNIMPLEMENTED, "");
   }
-
-  RunResponse response;
-  response.set_id(AddInmemoryFile(AoBench()));
-  response.set_image_type(ImageType::PNG);
-  stream->Write(response);
-
-  LOG(INFO) << "rendering finished";
-  return grpc::Status::OK;
 }
 
 Status FrancineWorkerServiceImpl::Compose(
@@ -119,9 +136,17 @@ Status FrancineWorkerServiceImpl::Put(
     content += request.content();
   }
 
-  LOG(INFO) << "put content: " << content;
+  LOG(INFO) << "put content size: " << content.size();
 
-  response->set_id(AddInmemoryFile(content));
+  if (content.size() > FLAGS_inmemory_threshold) {
+    std::string hash;
+    picosha2::hash256_hex_string(content, hash);
+    std::ofstream ofs(FLAGS_tmpdir + "/" + hash);
+    ofs << content;
+    response->set_id(hash);
+  } else {
+    response->set_id(AddInmemoryFile(content));
+  }
 
   LOG(INFO) << "put finished";
   return Status::OK;
@@ -135,16 +160,28 @@ Status FrancineWorkerServiceImpl::Get(
   std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
   LOG(INFO) << "get requested";
 
-  if (!inmemory_files_.count(request->id())) {
-    return Status(grpc::NOT_FOUND, "");
+  GetResponse response;
+  if (inmemory_files_.count(request->id())) {
+    response.set_content(inmemory_files_[request->id()]);
+    writer->Write(response);
+    LOG(INFO) << "get finished";
+    return Status::OK;
   }
 
-  GetResponse response;
-  response.set_content(inmemory_files_[request->id()]);
-  writer->Write(response);
+  std::ifstream ifs(FLAGS_tmpdir + "/" + request->id());
+  if (ifs.good()) {
+    std::vector<char> buffer(1024 * 64);
+    while (!ifs.eof()) {
+      ifs.read(buffer.data(), buffer.size());
+      response.set_content(
+          std::string(buffer.begin(), buffer.begin() + ifs.gcount()));
+      writer->Write(response);
+    }
+    return Status::OK;
+  }
 
-  LOG(INFO) << "get finished";
-  return Status::OK;
+  LOG(ERROR) << "get failed";
+  return Status(grpc::NOT_FOUND, "");
 }
 
 Status FrancineWorkerServiceImpl::Delete(
@@ -158,12 +195,16 @@ Status FrancineWorkerServiceImpl::Delete(
   if (inmemory_files_.count(request->id())) {
     inmemory_files_.erase(request->id());
     LOG(INFO) << "inmemory file deleted";
-    LOG(INFO) << "delete finished";
-    return Status::OK;
   }
 
-  LOG(INFO) << "delete failed";
-  return Status(grpc::NOT_FOUND, "");
+  const std::string filename = FLAGS_tmpdir + '/' + request->id();
+
+  if (!remove(filename.c_str())) {
+    LOG(INFO) << "on disk file deleted";
+  }
+
+  LOG(ERROR) << "no such file " << request->id() << " exists; ignore";
+  return Status::OK;
 }
 
 std::string FrancineWorkerServiceImpl::AddInmemoryFile(
