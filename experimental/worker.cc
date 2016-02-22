@@ -32,6 +32,7 @@ using grpc::ServerReader;
 using grpc::ServerReaderWriter;
 using grpc::ServerWriter;
 
+DEFINE_string(worker_address, "0.0.0.0:50052", "worker address to bind");
 DEFINE_string(tmpdir, "/tmp", "temporary directory to store files");
 
 Status FrancineWorkerServiceImpl::Run(
@@ -40,6 +41,7 @@ Status FrancineWorkerServiceImpl::Run(
   LOG(INFO) << "rendering started";
 
   RunRequest request;
+  // TODO(peryaudo): Accept streaming requests if the renderer supports
   if (!stream->Read(&request)) {
     return Status(grpc::INVALID_ARGUMENT, "");
   }
@@ -60,6 +62,7 @@ Status FrancineWorkerServiceImpl::Transfer(
     ServerContext* context,
     const TransferRequest* request,
     TransferResponse* response) {
+  // TODO(peryaudo): Support on disk files
   LOG(INFO) << "transfer requested";
 
   std::unique_ptr<FrancineWorker::Stub> stub(
@@ -97,6 +100,8 @@ Status FrancineWorkerServiceImpl::Transfer(
 Status FrancineWorkerServiceImpl::Put(
     ServerContext* context,
     ServerReader<PutRequest>* reader, PutResponse* response) {
+  // TODO(peryaudo): Support on disk files
+
   LOG(INFO) << "put requested";
 
   PutRequest request;
@@ -114,6 +119,8 @@ Status FrancineWorkerServiceImpl::Put(
 Status FrancineWorkerServiceImpl::Get(
     ServerContext* context,
     const GetRequest* request, ServerWriter<GetResponse>* writer) {
+  // TODO(peryaudo): Support on disk files
+ 
   std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
   LOG(INFO) << "get requested";
 
@@ -132,6 +139,8 @@ Status FrancineWorkerServiceImpl::Get(
 Status FrancineWorkerServiceImpl::Delete(
     ServerContext* context,
     const DeleteRequest* request, DeleteResponse* response) {
+  // TODO(peryaudo): Support on disk files
+
   LOG(INFO) << "delete requested";
 
   std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
@@ -159,14 +168,15 @@ std::string FrancineWorkerServiceImpl::AddInmemoryFile(
 }
 
 void RunWorker() {
-  const std::string server_address = "0.0.0.0:50052";
-
   FrancineWorkerServiceImpl service;
   ServerBuilder builder;
 
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.AddListeningPort(
+      FLAGS_worker_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
 
   std::unique_ptr<Server> server(builder.BuildAndStart());
+
+  LOG(INFO) << "Listen on " << FLAGS_worker_address;
   server->Wait();
 }
