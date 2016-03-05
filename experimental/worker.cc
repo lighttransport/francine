@@ -68,6 +68,10 @@ Status FrancineWorkerServiceImpl::Run(
     chdir("/home/peryaudo/pbrt-scenes");
     system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
     std::ifstream ifs("buddha.exr");
+    if (!ifs.good()) {
+      LOG(INFO) << "failed to obtain PBRT rendering result";
+      return Status(grpc::NOT_FOUND, "");
+    }
     std::string result((std::istreambuf_iterator<char>(ifs)),
                        std::istreambuf_iterator<char>());
     RunResponse response;

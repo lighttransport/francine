@@ -1,0 +1,5 @@
+*.o
+test
+francine
+francine.grpc.pb.h
+francine.pb.h
