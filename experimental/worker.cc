@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <unistd.h>
 
 #include "ao.h"
 #include "picosha2.h"
@@ -64,12 +65,16 @@ Status FrancineWorkerServiceImpl::Run(
     LOG(INFO) << "rendering finished";
     return grpc::Status::OK;
   } else if (request.renderer() == Renderer::PBRT) {
-    LOG(INFO) << "rendering finished";
-    system("ls");
+    chdir("/home/peryaudo/pbrt-scenes");
+    system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
+    std::ifstream ifs("buddha.exr");
+    std::string result((std::istreambuf_iterator<char>(ifs)),
+                       std::istreambuf_iterator<char>());
     RunResponse response;
-    response.set_id("");
-    response.set_image_type(ImageType::PNG);
+    response.set_id(AddInmemoryFile(result));
+    response.set_image_type(ImageType::EXR);
     stream->Write(response);
+    LOG(INFO) << "rendering finished";
     return grpc::Status::OK;
   } else {
     LOG(ERROR) << "the renderer type is not implemented";
