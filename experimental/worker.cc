@@ -1,10 +1,11 @@
 #include "worker.h"
 
+#include <fstream>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <sstream>
-#include <fstream>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "ao.h"
@@ -56,6 +57,9 @@ Status FrancineWorkerServiceImpl::Run(
   // TODO(peryaudo): Prepare symbolic links for renderer
   // TODO(peryaudo): splill out in memory file to disk if required
 
+  std::stringstream tmp_dir_name;
+  tmp_dir_name<<FLAGS_tmpdir<<"/"<<(++tmp_cnt_);
+
   if (request.renderer() == Renderer::AOBENCH) {
     RunResponse response;
     response.set_id(AddInmemoryFile(AoBench()));
@@ -65,6 +69,11 @@ Status FrancineWorkerServiceImpl::Run(
     LOG(INFO) << "rendering finished";
     return grpc::Status::OK;
   } else if (request.renderer() == Renderer::PBRT) {
+    if (!mkdir(tmp_dir_name.str().c_str(), 0755)) {
+      LOG(ERROR) << "failed to create temporary directory";
+      return Status(grpc::INTERNAL, "");
+    }
+
     chdir("/home/peryaudo/pbrt-scenes");
     system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
     std::ifstream ifs("buddha.exr");
