@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "ao.h"
-#include "picosha2.h"
 
 using francine::FrancineWorker;
 using francine::ImageType;
@@ -39,8 +38,6 @@ using grpc::ServerReaderWriter;
 using grpc::ServerWriter;
 
 DEFINE_string(worker_address, "0.0.0.0:50052", "worker address to bind");
-DEFINE_string(tmpdir, "/tmp", "temporary directory to store files");
-DEFINE_int64(inmemory_threshold, 0, "temporary directory to store files");
 
 Status FrancineWorkerServiceImpl::Run(
     ServerContext* context,
@@ -57,25 +54,24 @@ Status FrancineWorkerServiceImpl::Run(
   // TODO(peryaudo): Prepare symbolic links for renderer
   // TODO(peryaudo): splill out in memory file to disk if required
 
+  /*
   std::stringstream tmp_dir_name;
   tmp_dir_name<<FLAGS_tmpdir<<"/"<<(++tmp_cnt_);
+  */
 
   if (request.renderer() == Renderer::AOBENCH) {
     RunResponse response;
-    response.set_id(AddInmemoryFile(AoBench()));
+    std::string result_id;
+    file_manager_.Put(AoBench(), &result_id);  // TODO(peryaudo): error check
+    response.set_id(result_id);
     response.set_image_type(ImageType::PNG);
     stream->Write(response);
 
     LOG(INFO) << "rendering finished";
     return grpc::Status::OK;
   } else if (request.renderer() == Renderer::PBRT) {
-    if (!mkdir(tmp_dir_name.str().c_str(), 0755)) {
-      LOG(ERROR) << "failed to create temporary directory";
-      return Status(grpc::INTERNAL, "");
-    }
-
-    chdir("/home/peryaudo/pbrt-scenes");
     system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
+    chdir("/home/peryaudo/pbrt-scenes");
     std::ifstream ifs("buddha.exr");
     if (!ifs.good()) {
       LOG(INFO) << "failed to obtain PBRT rendering result";
@@ -84,7 +80,9 @@ Status FrancineWorkerServiceImpl::Run(
     std::string result((std::istreambuf_iterator<char>(ifs)),
                        std::istreambuf_iterator<char>());
     RunResponse response;
-    response.set_id(AddInmemoryFile(result));
+    std::string result_id;
+    file_manager_.Put(result, &result_id);  // TODO(peryaudo): error check
+    response.set_id(result_id);
     response.set_image_type(ImageType::EXR);
     stream->Write(response);
     LOG(INFO) << "rendering finished";
@@ -106,7 +104,6 @@ Status FrancineWorkerServiceImpl::Transfer(
     ServerContext* context,
     const TransferRequest* request,
     TransferResponse* response) {
-  // TODO(peryaudo): Support on disk files
   LOG(INFO) << "transfer requested";
 
   std::unique_ptr<FrancineWorker::Stub> stub(
@@ -131,7 +128,8 @@ Status FrancineWorkerServiceImpl::Transfer(
     return status;
   }
   
-  auto new_id = AddInmemoryFile(content);
+  std::string new_id;
+  file_manager_.Put(content, &new_id);  // TODO(peryaudo): error check
   if (new_id != request->id()) {
     return Status(grpc::DATA_LOSS, "");
   }
@@ -144,7 +142,6 @@ Status FrancineWorkerServiceImpl::Transfer(
 Status FrancineWorkerServiceImpl::Put(
     ServerContext* context,
     ServerReader<PutRequest>* reader, PutResponse* response) {
-  // TODO(peryaudo): Support on disk files
 
   LOG(INFO) << "put requested";
 
@@ -156,15 +153,9 @@ Status FrancineWorkerServiceImpl::Put(
 
   LOG(INFO) << "put content size: " << content.size();
 
-  if (content.size() > FLAGS_inmemory_threshold) {
-    std::string hash;
-    picosha2::hash256_hex_string(content, hash);
-    std::ofstream ofs(FLAGS_tmpdir + "/" + hash);
-    ofs << content;
-    response->set_id(hash);
-  } else {
-    response->set_id(AddInmemoryFile(content));
-  }
+  std::string content_id;
+  file_manager_.Put(content, &content_id);
+  response->set_id(content_id);
 
   LOG(INFO) << "put finished";
   return Status::OK;
@@ -173,68 +164,33 @@ Status FrancineWorkerServiceImpl::Put(
 Status FrancineWorkerServiceImpl::Get(
     ServerContext* context,
     const GetRequest* request, ServerWriter<GetResponse>* writer) {
-  // TODO(peryaudo): Support on disk files
- 
-  std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
+  // TODO(peryaudo): Progressively Write()
   LOG(INFO) << "get requested";
 
+  std::string content;
+  if (file_manager_.Get(request->id(), &content)) {
+    LOG(ERROR) << "get failed";
+    return Status(grpc::NOT_FOUND, "");
+  }
+
   GetResponse response;
-  if (inmemory_files_.count(request->id())) {
-    response.set_content(inmemory_files_[request->id()]);
-    writer->Write(response);
-    LOG(INFO) << "get finished";
-    return Status::OK;
-  }
-
-  std::ifstream ifs(FLAGS_tmpdir + "/" + request->id());
-  if (ifs.good()) {
-    std::vector<char> buffer(1024 * 64);
-    while (!ifs.eof()) {
-      ifs.read(buffer.data(), buffer.size());
-      response.set_content(
-          std::string(buffer.begin(), buffer.begin() + ifs.gcount()));
-      writer->Write(response);
-    }
-    return Status::OK;
-  }
-
-  LOG(ERROR) << "get failed";
-  return Status(grpc::NOT_FOUND, "");
+  response.set_content(content);
+  writer->Write(response);
+  LOG(INFO) << "get finished";
+  return Status::OK;
 }
 
 Status FrancineWorkerServiceImpl::Delete(
     ServerContext* context,
     const DeleteRequest* request, DeleteResponse* response) {
-  // TODO(peryaudo): Support on disk files
 
   LOG(INFO) << "delete requested";
 
-  std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
-  if (inmemory_files_.count(request->id())) {
-    inmemory_files_.erase(request->id());
-    LOG(INFO) << "inmemory file deleted";
+  if (file_manager_.Delete(request->id())) {
+    LOG(ERROR) << "no such file " << request->id() << " exists; ignore";
   }
 
-  const std::string filename = FLAGS_tmpdir + '/' + request->id();
-
-  if (!remove(filename.c_str())) {
-    LOG(INFO) << "on disk file deleted";
-  }
-
-  LOG(ERROR) << "no such file " << request->id() << " exists; ignore";
   return Status::OK;
-}
-
-std::string FrancineWorkerServiceImpl::AddInmemoryFile(
-    const std::string& content) {
-  std::string hash;
-
-  picosha2::hash256_hex_string(content, hash);
-
-  std::lock_guard<std::mutex> lock(inmemory_files_mutex_);
-  inmemory_files_[hash] = content;
-
-  return hash;
 }
 
 void RunWorker() {

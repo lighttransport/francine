@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "francine.grpc.pb.h"
+#include "worker_file_manager.h"
 
 class FrancineWorkerServiceImpl final
     : public francine::FrancineWorker::Service {
@@ -40,11 +41,7 @@ class FrancineWorkerServiceImpl final
       francine::DeleteResponse* response) override;
 
  private:
-  std::string AddInmemoryFile(const std::string& content);
-
-  std::map<std::string, std::string> inmemory_files_;
-  std::mutex inmemory_files_mutex_;
-  std::atomic<int> tmp_cnt_;
+  WorkerFileManager file_manager_;
 };
 
 void RunWorker();
