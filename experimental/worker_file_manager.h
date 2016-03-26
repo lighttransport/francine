@@ -14,6 +14,7 @@ class WorkerFileManager {
   // Returns true if failed.
   // All the function calls to this class are thread-safe.
 
+  // TODO(peryaudo): create streaming version of Get()
   bool Get(const std::string& id, std::string *content);
   bool Put(const std::string& content, std::string *id);
   bool Delete(const std::string& id);
