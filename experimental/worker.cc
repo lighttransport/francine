@@ -7,6 +7,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 #include "ao.h"
 
@@ -50,47 +51,54 @@ Status FrancineWorkerServiceImpl::Run(
     return Status(grpc::INVALID_ARGUMENT, "");
   }
 
-  // TODO(peryaudo): Check if all these files are on the worker
-  // TODO(peryaudo): Prepare symbolic links for renderer
-  // TODO(peryaudo): splill out in memory file to disk if required
-
-  /*
-  std::stringstream tmp_dir_name;
-  tmp_dir_name<<FLAGS_tmpdir<<"/"<<(++tmp_cnt_);
-  */
-
   if (request.renderer() == Renderer::AOBENCH) {
     RunResponse response;
     std::string result_id;
-    file_manager_.Put(AoBench(), &result_id);  // TODO(peryaudo): error check
+    if (file_manager_.Put(AoBench(), &result_id)) {
+      LOG(INFO) << "failed to obtain aobench rendering result";
+      return Status(grpc::DATA_LOSS, "");
+    }
     response.set_id(result_id);
     response.set_image_type(ImageType::PNG);
     stream->Write(response);
-
-    LOG(INFO) << "rendering finished";
-    return grpc::Status::OK;
   } else if (request.renderer() == Renderer::PBRT) {
-    system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
-    chdir("/home/peryaudo/pbrt-scenes");
-    std::ifstream ifs("buddha.exr");
-    if (!ifs.good()) {
-      LOG(INFO) << "failed to obtain PBRT rendering result";
-      return Status(grpc::NOT_FOUND, "");
+    std::vector<std::pair<std::string, std::string>> files;
+    for (auto&& file : request.files()) {
+      files.emplace_back(file.id(), file.alias());
     }
-    std::string result((std::istreambuf_iterator<char>(ifs)),
-                       std::istreambuf_iterator<char>());
-    RunResponse response;
+    std::string tmpdir;
+    if (file_manager_.CreateTmpDir(files, &tmpdir)) {
+      LOG(INFO) << "failed to create temporary directory";
+      return Status(grpc::DATA_LOSS, "");
+    }
+
+    chdir(tmpdir.c_str());
+
+    system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
+
     std::string result_id;
-    file_manager_.Put(result, &result_id);  // TODO(peryaudo): error check
+    if (file_manager_.Retain(tmpdir, "buddha.exr", &result_id)) {
+      LOG(INFO) << "failed to obtain PBRT rendering result";
+      file_manager_.RemoveTmpDir(tmpdir);
+      return Status(grpc::DATA_LOSS, "");
+    }
+
+    RunResponse response;
     response.set_id(result_id);
     response.set_image_type(ImageType::EXR);
     stream->Write(response);
+
+    file_manager_.RemoveTmpDir(tmpdir);
+
     LOG(INFO) << "rendering finished";
     return grpc::Status::OK;
   } else {
     LOG(ERROR) << "the renderer type is not implemented";
     return Status(grpc::UNIMPLEMENTED, "");
   }
+
+  LOG(INFO) << "rendering finished";
+  return grpc::Status::OK;
 }
 
 Status FrancineWorkerServiceImpl::Compose(
@@ -129,8 +137,7 @@ Status FrancineWorkerServiceImpl::Transfer(
   }
   
   std::string new_id;
-  file_manager_.Put(content, &new_id);  // TODO(peryaudo): error check
-  if (new_id != request->id()) {
+  if (file_manager_.Put(content, &new_id) || new_id != request->id()) {
     return Status(grpc::DATA_LOSS, "");
   }
 

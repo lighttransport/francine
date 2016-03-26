@@ -3,6 +3,9 @@
 #include <fstream>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <tuple>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "picosha2.h"
 
@@ -63,9 +66,65 @@ bool WorkerFileManager::Delete(const std::string& id) {
   return true;
 }
 
-/*
-if (!mkdir(tmp_dir_name.str().c_str(), 0755)) {
-  LOG(ERROR) << "failed to create temporary directory";
-  return Status(grpc::INTERNAL, "");
+bool WorkerFileManager::Retain(
+    const std::string dirname,
+    const std::string& filename, std::string *id) {
+  // Do not acquire lock here.
+
+  std::ifstream ifs(dirname + "/" + filename);
+  if (ifs.good()) {
+    std::string content((std::istreambuf_iterator<char>(ifs)),
+        std::istreambuf_iterator<char>());
+    return Put(content, id);
+  }
+
+  return true;
 }
-*/
+
+bool WorkerFileManager::CreateTmpDir(
+    const std::vector<std::pair<Id, Alias>>& files,
+    std::string *dirname) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  std::stringstream tmp_dir_name;
+  tmp_dir_name<<FLAGS_tmpdir<<"/"<<tmp_cnt_;
+  *dirname = tmp_dir_name.str();
+  ++tmp_cnt_;
+
+  if (!mkdir(dirname->c_str(), 0755)) {
+    LOG(ERROR) << "failed to create tmpdir " << *dirname;
+    return false;
+  }
+
+  for (auto&& file : files) {
+    std::string id, alias;
+    std::tie(id, alias) = file;
+
+    if (inmemory_files_.count(id)) {
+      // Spill out in memory file to disk.
+      std::string content = inmemory_files_[id];
+      inmemory_files_.erase(id);
+
+      std::ofstream ofs(FLAGS_tmpdir + "/" + id);
+      ofs << content;
+    }
+
+    const auto from = FLAGS_tmpdir + "/" + id;
+    const auto to = *dirname + "/" + alias;
+
+    if (!symlink(from.c_str(), to.c_str())) {
+      LOG(ERROR) << "symlink failed. Id: " << id << " Alias: " << alias;
+      RemoveTmpDir(*dirname);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void WorkerFileManager::RemoveTmpDir(const std::string& dirname) {
+  // Do not acquire lock here.
+  std::string cmd = "rm - rf ";
+  cmd += dirname;
+  system(dirname.c_str());
+}
