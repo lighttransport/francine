@@ -39,12 +39,20 @@ message UploadResponse {
 	int64 expire = 2;
 }
 
+message SystemUpdateRequest {
+	string kind = 1;
+	string id = 2;
+}
+message SystemUpdateResponse {}
+
 service Francine {
 	rpc Render (RenderRequest) returns (RenderResponse);
 	rpc RenderStream (stream RenderRequest) returns (stream RenderResponse);
 	rpc UploadDirect (UploadDirectRequest) returns (UploadResponse);
 	rpc UploadDirectStream (stream UploadDirectRequest) returns (UploadResponse);
 	// rpc UploadDropbox (UploadDropboxRequest) returns (UploadResponse);
+
+	rpc SystemUpdate(SystemUpdateRequest) returns (SystemUpdateResponse);
 }
 
 message RunRequest {
@@ -103,4 +111,6 @@ service FrancineWorker {
 	rpc Put (stream PutRequest) returns (PutResponse);
 	rpc Get (GetRequest) returns (stream GetResponse);
 	rpc Delete (DeleteRequest) returns (DeleteResponse);
+
+	rpc SystemUpdate(SystemUpdateRequest) returns (SystemUpdateResponse);
 }
