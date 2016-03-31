@@ -30,12 +30,14 @@ bool WorkerFileManager::Get(const std::string& id, std::string *content) {
   return true;
 }
 
-bool WorkerFileManager::Put(const std::string& content, std::string *id) {
+bool WorkerFileManager::Put(const std::string& content,
+                            std::string *id, uint64_t *size) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   std::string hash;
   picosha2::hash256_hex_string(content, hash);
   *id = hash;
+  *size = content.size();
 
   if (content.size() > FLAGS_inmemory_threshold) {
     std::ofstream ofs(FLAGS_tmpdir + "/" + hash);
@@ -68,14 +70,14 @@ bool WorkerFileManager::Delete(const std::string& id) {
 
 bool WorkerFileManager::Retain(
     const std::string dirname,
-    const std::string& filename, std::string *id) {
+    const std::string& filename, std::string *id, uint64_t *size) {
   // Do not acquire lock here.
 
   std::ifstream ifs(dirname + "/" + filename);
   if (ifs.good()) {
     std::string content((std::istreambuf_iterator<char>(ifs)),
         std::istreambuf_iterator<char>());
-    return Put(content, id);
+    return Put(content, id, size);
   }
 
   return true;

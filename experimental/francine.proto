@@ -62,6 +62,7 @@ message RunRequest {
 }
 message RunResponse {
 	string id = 1;
+	fixed64 file_size = 3;
 	ImageType image_type = 2;
 }
 
@@ -76,19 +77,23 @@ message ComposeRequest {
 }
 message ComposeResponse {
 	string id = 1;
+	fixed64 file_size = 2;
 }
 
 message TransferRequest {
 	string id = 1;
 	string src_address = 2;
 }
-message TransferResponse {}
+message TransferResponse {
+	fixed64 file_size = 1;
+}
 
 message PutRequest {
 	bytes content = 1;
 }
 message PutResponse {
 	string id = 1;
+	fixed64 file_size = 2;
 }
 
 message GetRequest {

@@ -16,12 +16,12 @@ class WorkerFileManager {
 
   // TODO(peryaudo): create streaming version of Get()
   bool Get(const std::string& id, std::string *content);
-  bool Put(const std::string& content, std::string *id);
+  bool Put(const std::string& content, std::string *id, uint64_t *size);
   bool Delete(const std::string& id);
 
   // Retain a renderer created file.
   bool Retain(const std::string dirname,
-              const std::string& filename, std::string *id);
+              const std::string& filename, std::string *id, uint64_t *size);
 
   using Id = std::string;
   using Alias = std::string;

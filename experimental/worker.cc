@@ -230,11 +230,13 @@ Status FrancineWorkerServiceImpl::Run(
   if (request.renderer() == Renderer::AOBENCH) {
     RunResponse response;
     std::string result_id;
-    if (file_manager_.Put(AoBench(), &result_id)) {
+    uint64_t result_size;
+    if (file_manager_.Put(AoBench(), &result_id, &result_size)) {
       LOG(INFO) << "failed to obtain aobench rendering result";
       return Status(grpc::DATA_LOSS, "");
     }
     response.set_id(result_id);
+    response.set_file_size(result_size);
     response.set_image_type(ImageType::PNG);
     stream->Write(response);
   } else if (request.renderer() == Renderer::PBRT) {
@@ -253,7 +255,8 @@ Status FrancineWorkerServiceImpl::Run(
     system("/home/peryaudo/pbrt-v2/src/bin/pbrt buddha.pbrt");
 
     std::string result_id;
-    if (file_manager_.Retain(tmpdir, "buddha.exr", &result_id)) {
+    uint64_t result_size;
+    if (file_manager_.Retain(tmpdir, "buddha.exr", &result_id, &result_size)) {
       LOG(INFO) << "failed to obtain PBRT rendering result";
       file_manager_.RemoveTmpDir(tmpdir);
       return Status(grpc::DATA_LOSS, "");
@@ -261,6 +264,7 @@ Status FrancineWorkerServiceImpl::Run(
 
     RunResponse response;
     response.set_id(result_id);
+    response.set_file_size(result_size);
     response.set_image_type(ImageType::EXR);
     stream->Write(response);
 
@@ -325,12 +329,14 @@ Status FrancineWorkerServiceImpl::Compose(
   }
 
   std::string result_id;
-  if (file_manager_.Put(result, &result_id)) {
+  uint64_t result_size;
+  if (file_manager_.Put(result, &result_id, &result_size)) {
     LOG(ERROR) << "failed to put compose result";
     return Status(grpc::INTERNAL, "");
   }
 
   response->set_id(result_id);
+  response->set_file_size(result_size);
 
   return grpc::Status::OK;
 }
@@ -364,9 +370,13 @@ Status FrancineWorkerServiceImpl::Transfer(
   }
   
   std::string new_id;
-  if (file_manager_.Put(content, &new_id) || new_id != request->id()) {
+  uint64_t file_size;
+  if (file_manager_.Put(content, &new_id, &file_size) ||
+      new_id != request->id()) {
     return Status(grpc::DATA_LOSS, "");
   }
+
+  response->set_file_size(file_size);
 
   LOG(INFO) << "transfer finished";
 
@@ -388,8 +398,10 @@ Status FrancineWorkerServiceImpl::Put(
   LOG(INFO) << "put content size: " << content.size();
 
   std::string content_id;
-  file_manager_.Put(content, &content_id);
+  uint64_t content_size;
+  file_manager_.Put(content, &content_id, &content_size);
   response->set_id(content_id);
+  response->set_file_size(content_size);
 
   LOG(INFO) << "put finished";
   return Status::OK;

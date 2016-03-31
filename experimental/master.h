@@ -7,18 +7,8 @@
 #include <vector>
 
 #include "francine.grpc.pb.h"
-
-struct WorkerInfo {
-  std::string address;
-  std::shared_ptr<grpc::Channel> channel;
-  std::shared_ptr<francine::FrancineWorker::Stub> stub;
-  std::set<std::string> files;
-
-  WorkerInfo(const std::string& address)
-      : address(address)
-      , channel(CreateChannel(address, grpc::InsecureChannelCredentials()))
-      , stub(francine::FrancineWorker::NewStub(channel)) { }
-};
+#include "node_manager.h"
+#include "master_file_manager.h"
 
 class FrancineServiceImpl final : public francine::Francine::Service {
  public:
@@ -45,8 +35,8 @@ class FrancineServiceImpl final : public francine::Francine::Service {
       francine::UploadResponse* response) override;
 
  private:
-  std::vector<WorkerInfo> workers_;
-  int worker_idx_;
+  NodeManager node_manager_;
+  MasterFileManager master_file_manager_;
 };
 
 void RunMaster();
