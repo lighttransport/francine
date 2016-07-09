@@ -1,8 +1,18 @@
 ## Install
 
-    curl -fsSL https://goo.gl/getgrpc | bash -
-    brew install gflags
-    brew install glog
+### MacOSX
+
+Assume homebrew has been installed on your system.
+
+Install gRPC, gflags and glog.
+
+    $ curl -fsSL https://goo.gl/getgrpc | bash -
+    $ brew install gflags
+    $ brew install glog
+
+### Linux and Windows
+
+T.B.W.
 
 ## Try
 
